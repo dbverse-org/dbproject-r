@@ -17,7 +17,7 @@ The goal of dbProject is to manage dbData objects and database connections in th
 You can install the development version of dbProject like so:
 
 ``` r
-pak::pak("drieslab/dbProject")
+pak::pak("dbverse-org/dbproject-r")
 ```
 
 ## Example
