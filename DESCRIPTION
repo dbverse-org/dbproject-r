@@ -1,35 +1,48 @@
 Package: dbProject
-Title: Manage Objects and Database Connections in the dbverse Ecosystem
+Title: Database Connection Management and Utils in the `dbverse`
 Version: 0.0.0.9000
-Authors@R: 
-    c(person("Edward", "C. Ruiz", , "ecr7407@gmail.com", role = c("aut", "cre"),
+Authors@R:
+  c(person("Edward C.", "Ruiz", , "ecr7407@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9174-5387")),
-      person("Jiaji", "George Chen", email = "jiajic@bu.edu", role = c("aut")),
-      person("Ruben", "Dries", email = "rubendries@gmail.com",
-             role = c("aut", "rev"))
-      )
-Description: Manage Objects and Database Connections in the dbverse Ecosystem
+    person("Jiaji", "George Chen", email = "jiajic@bu.edu", role = c("aut")),
+    person("Ruben", "Dries", email = "rubendries@gmail.com", role = c("aut")))
+Author: Edward C. Ruiz [aut, cre] (<ecr7407@gmail.com>), Jiaji George Chen [aut] (<jiajic@bu.edu>), Ruben Dries [aut] (<rubendries@gmail.com>
+Maintainer: Edward C. Ruiz <ecr7407@gmail.com>
+Description: Database Connection Management and Utils in the `dbverse`
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-URL: https://github.com/dbverse-org/dbproject-r
+URL: https://github.com/dbverse-org/dbproject-r, https://dbverse-org.github.io/dbproject-r/
 BugReports: https://github.com/dbverse-org/dbproject-r/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    R6,
+    dplyr,
+    duckdb (>= 0.9.2),
     DBI,
-    connections,
     pins,
     dbplyr,
     methods,
     glue,
-    cli,
-    R.utils
+    cli
 Suggests: 
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    dbMatrix,
+    dbSpatial
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Collate: 
+    'classes.R'
+    'connection-factory.R'
+    'table-reconnection.R'
+    'connection-registry.R'
+    'generics.R'
+    'connection-methods.R'
+    'extract.R'
+    'imports.R'
+    'path-utils.R'
+    'to_view.R'
+    'unique_table_name.R'
