@@ -32,6 +32,9 @@ Suggests:
     testthat (>= 3.0.0),
     dbMatrix,
     dbSpatial
+Remotes:
+    dbverse-org/dbmatrix-r,
+    dbverse-org/dbspatial-r
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
