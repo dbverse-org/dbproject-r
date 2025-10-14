@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   getting_started: getting_started.html
-last_built: 2025-10-14T17:50Z
+last_built: 2025-10-14T18:48Z
 urls:
   reference: https://dbverse-org.github.io/dbproject-r/reference
   article: https://dbverse-org.github.io/dbproject-r/articles
