@@ -3,6 +3,7 @@
 export("conn<-")
 export(conn)
 export(dbList)
+export(dbLoad)
 export(dbReconnect)
 export(to_view)
 exportClasses(dbData)

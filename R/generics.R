@@ -86,3 +86,18 @@ methods::setGeneric(
 #' @seealso [DBI::dbListTables()]
 #' @export
 methods::setGeneric("dbList", function(conn, ...) standardGeneric("dbList"))
+
+#' Load a dbverse object from the database
+#'
+#' @description
+#' Generic function to reconstruct dbverse objects (dbMatrix, dbSpatial, etc.)
+#' from tables stored in a database connection.
+#'
+#' @name dbLoad
+#' @param conn A DBI database connection
+#' @param name Character name of the table/view in the database
+#' @param class Character class name of the object to load (e.g., "dbMatrix", "dbSpatial")
+#' @param ... Additional arguments passed to specific methods
+#' @return A dbverse object of the specified class
+#' @export
+methods::setGeneric("dbLoad", function(conn, name, class, ...) standardGeneric("dbLoad"))
