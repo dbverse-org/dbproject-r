@@ -41,7 +41,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/drieslab/dbProject/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/dbverse-org/dbproject-r/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
@@ -66,14 +66,14 @@
       <h1>Getting Started</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/drieslab/dbProject/blob/main/vignettes/getting_started.Rmd" class="external-link"><code>vignettes/getting_started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dbverse-org/dbproject-r/blob/main/vignettes/getting_started.Rmd" class="external-link"><code>vignettes/getting_started.Rmd</code></a></small>
       <div class="d-none name"><code>getting_started.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/drieslab/dbProject" class="external-link">dbProject</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dbverse-org/dbproject-r" class="external-link">dbProject</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
@@ -123,21 +123,8 @@ connection object and other pinned objects will be stored.</li>
 we access the object’s methods using the <code>$</code> operator.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va">dbProject</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>drv <span class="op">=</span> <span class="fu">duckdb</span><span class="fu">::</span><span class="fu"><a href="https://r.duckdb.org/reference/duckdb.html" class="external-link">duckdb</a></span><span class="op">(</span><span class="op">)</span>, path <span class="op">=</span> <span class="st">"test3"</span>, dbdir <span class="op">=</span> <span class="st">'test.db'</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Creating new version '20250511T194832Z-7cf96'</span></span>
-<span><span class="co">#&gt; Writing to pin 'cachedConnection'</span></span>
-<span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
 <span></span>
-<span><span class="va">proj</span></span>
-<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
-<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
-<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-05-11 <span style="color: #949494;">19:48:32</span>       194 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test.db</span></span></span></code></pre></div>
+<span><span class="va">proj</span></span></code></pre></div>
 <p>The <code>dbProject$print()</code> method is run whenever the object
 is printed. It displays the <code>path</code> and <code>board</code>
 attributes of the object, as well as the contents of the board.</p>
@@ -151,17 +138,7 @@ the current connection, if any.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">disconnect</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">proj</span></span>
-<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Disconnected</span></span>
-<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
-<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-05-11 <span style="color: #949494;">19:48:32</span>       194 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No active connection.</span></span></code></pre></div>
+<span><span class="va">proj</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="reconnecting-to-the-database">Reconnecting to the database<a class="anchor" aria-label="anchor" href="#reconnecting-to-the-database"></a>
@@ -172,24 +149,8 @@ connection object from the <code>pins_board</code> object and reconnects
 to the database.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">reconnect</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'connections'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:dbProject':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     connection_pin_read</span></span>
-<span><span class="co">#&gt; Loading required package: DBI</span></span>
 <span></span>
-<span><span class="va">proj</span></span>
-<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
-<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
-<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-05-11 <span style="color: #949494;">19:48:32</span>       194 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test.db</span></span></span></code></pre></div>
+<span><span class="va">proj</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="pinning-lazy-database-tables">Pinning Lazy Database Tables<a class="anchor" aria-label="anchor" href="#pinning-lazy-database-tables"></a>
@@ -197,45 +158,14 @@ to the database.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">get_connection</span><span class="op">(</span><span class="op">)</span> <span class="co"># note: getConnection() returns a connConnection object from the {connections} R package.</span></span>
 <span><span class="va">mtcars</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/copy_to.html" class="external-link">copy_to</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">mtcars</span>, temporary <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">mtcars</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Source:   table&lt;mtcars&gt; [?? x 11]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB v1.2.2 [unknown@Linux 6.11.0-1013-azure:R 4.5.0//home/runner/work/dbproject-r/dbproject-r/vignettes/test.db]</span></span></span>
-<span><span class="co">#&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>  21       6  160    110  3.9   2.88  17.0     0     1     4     4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>  24.4     4  147.    62  3.69  3.19  20       1     0     4     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ more rows</span></span></span></code></pre></div>
+<span><span class="va">mtcars</span></span></code></pre></div>
 <p>We can add a database table to the <code>pins_board</code> object
 using the <code>proj$pin_write()</code> method. This method writes the
 database table to the board.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mtcars</span>, name <span class="op">=</span> <span class="st">'mtcars'</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Creating new version '20250511T194833Z-4ced3'</span></span>
-<span><span class="co">#&gt; Writing to pin 'mtcars'</span></span>
-<span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
 <span></span>
-<span><span class="va">proj</span></span>
-<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
-<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
-<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-05-11 <span style="color: #949494;">19:48:32</span>       194 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   dbProject pin… 2025-05-11 <span style="color: #949494;">19:48:33</span>     3.02K <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test.db</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Tables:</span></span>
-<span><span class="co">#&gt; • mtcars</span></span></code></pre></div>
+<span><span class="va">proj</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="reading-a-pinned-database-table">Reading a pinned database table<a class="anchor" aria-label="anchor" href="#reading-a-pinned-database-table"></a>
@@ -248,37 +178,11 @@ from the board.</p>
 <code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">disconnect</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">proj</span></span>
-<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Disconnected</span></span>
-<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/home/runner/work/dbproject-r/dbproject-r/vignettes/test3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
-<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-05-11 <span style="color: #949494;">19:48:32</span>       194 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   dbProject pin… 2025-05-11 <span style="color: #949494;">19:48:33</span>     3.02K <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No active connection.</span></span>
 <span></span>
 <span><span class="co"># read the pinned lazy table object</span></span>
 <span><span class="va">mtcars</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span>name <span class="op">=</span> <span class="st">'mtcars'</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">mtcars</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Source:   table&lt;mtcars&gt; [?? x 11]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB v1.2.2 [unknown@Linux 6.11.0-1013-azure:R 4.5.0//home/runner/work/dbproject-r/dbproject-r/vignettes/test.db]</span></span></span>
-<span><span class="co">#&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>  21       6  160    110  3.9   2.88  17.0     0     1     4     4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>  24.4     4  147.    62  3.69  3.19  20       1     0     4     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ more rows</span></span></span></code></pre></div>
+<span><span class="va">mtcars</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -293,7 +197,7 @@ from the board.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
