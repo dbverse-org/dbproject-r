@@ -1,12 +1,12 @@
 #' Convert lazy table to named VIEW
-#' @param x `tbl_sql` 
+#' @param x `tbl_sql`
 #'   **Required**. `tbl_sql` object to convert to a VIEW.
-#' @param name `character` 
+#' @param name `character`
 #'   **Required**. Name to assign VIEW within database. Auto-generated if none
 #'   provided with prefix `"tmp_view_"`
-#' @param temporary `logical` 
+#' @param temporary `logical`
 #'   If `TRUE` (default), the VIEW will not be saved in the database
-#' @param overwrite `logical` 
+#' @param overwrite `logical`
 #'   If `TRUE` (default), the VIEW will overwrite an existing VIEW of the same name
 #' @param ... Additional arguments passed to [DBI::dbExecute()]
 #' @concept dbData

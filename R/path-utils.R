@@ -46,7 +46,11 @@
         }
 
         # Try to access the driver directly
-        if (!is.null(con@driver) && inherits(con@driver, "duckdb_driver") && !is.null(con@driver@dbdir)) {
+        if (
+          !is.null(con@driver) &&
+            inherits(con@driver, "duckdb_driver") &&
+            !is.null(con@driver@dbdir)
+        ) {
           return(.norm_path(con@driver@dbdir))
         }
 

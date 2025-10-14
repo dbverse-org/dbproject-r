@@ -88,13 +88,13 @@
 }
 
 #' Database Reconnection
-#' 
+#'
 #' @description
 #' Internal function used by the [dbReconnect()] and [conn()] generics.
-#' Reconnection is triggered when [DBI::dbIsValid()] returns `FALSE`, indicating 
-#' the connection has been lost, expired, or closed. Common scenarios include 
+#' Reconnection is triggered when [DBI::dbIsValid()] returns `FALSE`, indicating
+#' the connection has been lost, expired, or closed. Common scenarios include
 #' network interruptions, db restarts, timeouts, or [DBI::dbDisconnect()].
-#' 
+#'
 #' @details
 #' This function safely checks if a database connection is valid and attempts to
 #' reconnect if it's not. The reconnection process follows these steps:
@@ -108,51 +108,36 @@
 #' @return A valid connection object or NULL if all reconnection attempts fail
 #' @keywords internal
 .reconnect_conn <- function(con) {
-  tryCatch({
-    if (is.null(con)) {
-      return(con)
-    }
-
-    # Safely check if connection is valid
-    is_valid <- tryCatch(
-      {
-        valid <- DBI::dbIsValid(con)
-        valid
-      },
-      error = function(e) {
-        FALSE
+  tryCatch(
+    {
+      if (is.null(con)) {
+        return(con)
       }
-    )
 
-    # Return as-is if connection is valid
-    if (is_valid) {
-      return(con)
-    }
-
-    dir <- NULL
-
-    # Step 1: Try to get dbdir from attribute first (most reliable)
-    dir <- tryCatch(
-      {
-        path <- attr(con, "dbdir")
-        if (!is.null(path) && path != "") {
-          .norm_path(path)
-        } else {
-          NULL
+      # Safely check if connection is valid
+      is_valid <- tryCatch(
+        {
+          valid <- DBI::dbIsValid(con)
+          valid
+        },
+        error = function(e) {
+          FALSE
         }
-      },
-      error = function(e) {
-        NULL
-      }
-    )
+      )
 
-    # Step 2: If dir is still NULL, try to directly access
-    if (is.null(dir)) {
+      # Return as-is if connection is valid
+      if (is_valid) {
+        return(con)
+      }
+
+      dir <- NULL
+
+      # Step 1: Try to get dbdir from attribute first (most reliable)
       dir <- tryCatch(
         {
-          dbdir <- con@driver@dbdir
-          if (!is.null(dbdir) && dbdir != "") {
-            .norm_path(dbdir)
+          path <- attr(con, "dbdir")
+          if (!is.null(path) && path != "") {
+            .norm_path(path)
           } else {
             NULL
           }
@@ -161,35 +146,55 @@
           NULL
         }
       )
-    }
 
-    # Step 3: If no dbdir available, try to reconnect directly
-    if (is.null(dir) || dir == "" || dir == ":memory:") {
-      return(.db_recon(con, dir))
-    }
-
-    # Step 4: Check registry for project connection
-    proj_path <- .reg_find(dir)
-    if (!is.null(proj_path)) {
-      tryCatch(
-        {
-          new_con <- .proj_recon(proj_path, dir)
-          if (!is.null(new_con)) {
-            is_valid <- tryCatch(DBI::dbIsValid(new_con), error = function(e) {
-              FALSE
-            })
-            if (is_valid) return(new_con)
+      # Step 2: If dir is still NULL, try to directly access
+      if (is.null(dir)) {
+        dir <- tryCatch(
+          {
+            dbdir <- con@driver@dbdir
+            if (!is.null(dbdir) && dbdir != "") {
+              .norm_path(dbdir)
+            } else {
+              NULL
+            }
+          },
+          error = function(e) {
+            NULL
           }
-        },
-        error = function(e) {}
-      )
-    }
+        )
+      }
 
-    # Step 5: Fallback to direct reconnection if project reconnect failed
-    return(.db_recon(con, dir))
-    
-  }, error = function(e) {
-    warning("Failed to reconnect database connection: ", e$message)
-    return(NULL)
-  })
+      # Step 3: If no dbdir available, try to reconnect directly
+      if (is.null(dir) || dir == "" || dir == ":memory:") {
+        return(.db_recon(con, dir))
+      }
+
+      # Step 4: Check registry for project connection
+      proj_path <- .reg_find(dir)
+      if (!is.null(proj_path)) {
+        tryCatch(
+          {
+            new_con <- .proj_recon(proj_path, dir)
+            if (!is.null(new_con)) {
+              is_valid <- tryCatch(
+                DBI::dbIsValid(new_con),
+                error = function(e) {
+                  FALSE
+                }
+              )
+              if (is_valid) return(new_con)
+            }
+          },
+          error = function(e) {}
+        )
+      }
+
+      # Step 5: Fallback to direct reconnection if project reconnect failed
+      return(.db_recon(con, dir))
+    },
+    error = function(e) {
+      warning("Failed to reconnect database connection: ", e$message)
+      return(NULL)
+    }
+  )
 }

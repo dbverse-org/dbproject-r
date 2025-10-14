@@ -24,13 +24,16 @@
 #' @return The extracted data
 #' @export
 setMethod("[", "dbData", function(x, ...) {
-  tryCatch({
-    reconnected_obj <- dbReconnect(x)
-    return(reconnected_obj@value)
-  }, error = function(reconnect_error) {
-    warning("Auto-reconnection failed: ", reconnect_error$message)
-    return(x@value)
-  })
+  tryCatch(
+    {
+      reconnected_obj <- dbReconnect(x)
+      return(reconnected_obj@value)
+    },
+    error = function(reconnect_error) {
+      warning("Auto-reconnection failed: ", reconnect_error$message)
+      return(x@value)
+    }
+  )
 })
 
 #' Assignment method for dbData objects with connection repair
