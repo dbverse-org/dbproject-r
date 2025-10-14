@@ -33,8 +33,8 @@ Suggests:
     dbMatrix,
     dbSpatial
 Remotes:
-    dbverse-org/dbmatrix-r,
-    dbverse-org/dbspatial-r
+    dbMatrix=dbverse-org/dbmatrix-r,
+    dbSpatial=dbverse-org/dbspatial-r
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
