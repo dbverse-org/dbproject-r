@@ -24,7 +24,7 @@ setMethod(
 
     # Generate name if not provided
     if (missing(name)) {
-      name <- .unique_table_name("tmp_view")
+      name <- .unique_table_name("_tmp_view")
     }
 
     sql_view <- glue::glue("CREATE OR REPLACE TEMPORARY VIEW '{name}' AS {sql}")
