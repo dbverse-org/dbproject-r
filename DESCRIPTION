@@ -44,6 +44,7 @@ Collate:
     'connection-registry.R'
     'generics.R'
     'connection-methods.R'
+    'dbList.R'
     'extract.R'
     'imports.R'
     'path-utils.R'

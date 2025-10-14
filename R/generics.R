@@ -72,3 +72,17 @@ methods::setGeneric(
     standardGeneric("to_view")
   }
 )
+
+#' List remote tables, temporary tables, and views
+#'
+#' @description
+#' A generic function to list tables, temporary tables, and views in a database connection.
+#' This provides an enhanced view over DBI::dbListTables with categorization.
+#'
+#' @name dbList
+#' @param conn A DBI database connection
+#' @param ... Additional arguments passed to methods
+#' @return Method implementations may return different formats, typically a categorized list
+#' @seealso [DBI::dbListTables()]
+#' @export
+methods::setGeneric("dbList", function(conn, ...) standardGeneric("dbList"))
