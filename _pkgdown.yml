@@ -13,4 +13,3 @@ articles:
     desc: Understanding connection management in dbProject
     contents:
       - connection-management
-      - dbdata-reconnection
