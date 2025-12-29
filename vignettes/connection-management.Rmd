@@ -1,0 +1,90 @@
+---
+title: "Connection Management"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Connection Management}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+## The Problem
+
+Database connections in R are stateless:
+
+```r
+con <- DBI::dbConnect(duckdb::duckdb(), dbdir = "data.duckdb")
+tbl1 <- dplyr::tbl(con, "table1")
+# ... 50 lines later: Is the connection still valid? Who closed it?
+```
+
+## dbProject's Solution
+
+An R6 class that centralizes your connection and pinned tables:
+```r
+library(dbProject)
+
+proj <- dbProject$new(path = "my_project/")
+proj$pin_write(my_tbl, "expression_data")
+
+# Later (even after R restart):
+proj <- dbProject$new(path = "my_project/")
+proj$reconnect()
+my_tbl <- proj$pin_read("expression_data")
+```
+
+## DBI Compatibility
+
+dbProject works alongside DBI, not instead of it:
+
+| Approach | When to Use |
+|----------|-------------|
+| DBI directly | Quick scripts, one-off analysis |
+| dbProject | Multi-session work, centralized management |
+
+Both approaches get automatic reconnection via the `dbData` base class.
+
+## Core Concepts
+
+### Mutable State (R6)
+
+```r
+proj <- dbProject$new(path = "my_analysis/")
+
+# These modify the same object - no reassignment needed
+proj$disconnect()
+proj$reconnect()
+proj$pin_write(my_tbl, "results")
+```
+
+### Centralized Management
+
+```r
+proj
+#> ── dbProject ──────────────────────────────────────────
+#> ✓ Connected
+#> ── Board Content ──────────────────────────────────────
+#>   name              type
+#>   expression_data   tbl
+#> ── Database Content ───────────────────────────────────
+#> ℹ Tables: expression_raw, cell_types
+```
+
+### Automatic Reconnection
+
+The empty extract `[]` method on all dbverse objects auto-reconnects if the connection is stale:
+
+```r
+mat[]  # Can be either a DBI connection or a dbProject connection
+```
+
+## Working with Pins
+
+```r
+proj$pin_write(my_tbl, "results")   # Save lazy table
+my_tbl <- proj$pin_read("results") # Restore reference
+proj$pin_delete("old_results")     # Clean up
+```
