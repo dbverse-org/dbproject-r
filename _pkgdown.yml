@@ -2,3 +2,15 @@ url: https://dbverse-org.github.io/dbproject-r/
 template:
   bootstrap: 5
   light-switch: true
+
+articles:
+  - title: Getting Started
+    desc: Get started with dbProject
+    contents:
+      - getting_started
+  
+  - title: Connection Management
+    desc: Understanding connection management in dbProject
+    contents:
+      - connection-management
+      - dbdata-reconnection
