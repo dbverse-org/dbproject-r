@@ -1,0 +1,351 @@
+#' Write Pin Connection Generic
+#'
+#' @description Generic function for writing connection objects to a pins board
+#'
+#' @param x Object to write
+#' @param board A pins board object
+#' @param ... Additional arguments passed to methods
+#'
+#' @export
+write_pin_conn <- function(x, board, ...) {
+  UseMethod("write_pin_conn")
+}
+
+#' Read a pinned dbMatrix object from a board
+#' @param board A pins board object
+#' @param name The name of the pin
+#' @param version The version of the pin to get (optional)
+#' @returns A dbMatrix object (dbSparseMatrix or dbDenseMatrix)
+#' @export
+connection_pin_read <- function(board, name, version = NULL) {
+  pinned <- pins::pin_read(board = board, name = name, version = version)
+  read_pin_conn(pinned)
+}
+
+#' Read Pin Connection Generic
+#'
+#' @description Generic function for reading connection objects from a pins board
+#'
+#' @param x A pinned connection object
+#'
+#' @export
+read_pin_conn <- function(x) {
+  UseMethod("read_pin_conn")
+}
+
+#' Write a dbMatrix object to a pins board
+#'
+#' @description S3 method for writing dbMatrix objects to a pins board while maintaining
+#' connection state and metadata consistent with the connections package.
+#' Handles ops slot persistence for lazy affine transformations.
+#'
+#' @param x A [`dbMatrix`] object (dbSparseMatrix or dbDenseMatrix)
+#' @param board A pins [`board_folder`] object
+#' @param name Name for the pin (required)
+#' @param ... Additional arguments passed to [`pins::pin_write()`]
+#'
+#' @return Invisibly returns the input object
+#' @export
+#' @method write_pin_conn dbMatrix
+write_pin_conn.dbMatrix <- function(x, board, name, ...) {
+  con <- dbplyr::remote_con(x@value)
+  incoming_dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
+  table_name <- x@name
+
+  # STEP 1: Materialize via compute() if:
+  # - Table doesn't exist (lazy query)
+  # - OR has pending ops that need to be applied
+  # This ensures temp metadata tables (__dbM_*) are cleaned up and ops are materialized
+  has_pending_ops <- methods::.hasSlot(x, "ops") && length(x@ops) > 0
+  needs_compute <- is.na(table_name) || 
+                   !table_name %in% DBI::dbListTables(con) ||
+                   has_pending_ops
+  
+  if (needs_compute) {
+    x <- dplyr::compute(
+      x,
+      name = name,
+      temporary = FALSE,
+      dimnames = TRUE,
+      overwrite = TRUE
+    )
+    table_name <- x@name
+  }
+
+  # STEP 2: Save ops table if present (MUST be permanent)
+  has_ops <- FALSE
+  ops_table <- NA_character_
+  if (methods::.hasSlot(x, "ops") && length(x@ops) > 0) {
+    has_ops <- TRUE
+    ops_table <- paste0("__", table_name, "_ops")
+    # Use dbMatrix's ops table saving function
+    dbMatrix::.save_ops_table(
+      con = con,
+      ops = x@ops,
+      table_name = ops_table,
+      replace = TRUE,
+      temporary = FALSE
+    )
+  }
+
+  # STEP 3: Pin metadata (ACID-compliant via pins board)
+  dbdir <- incoming_dbdir
+
+  metadata <- list(
+    host = NA,
+    type = "dbMatrix",
+    columns = lapply(dplyr::collect(head(x@value, 10)), class),
+    matrix_info = list(
+      dim_names = x@dim_names,
+      dims = x@dims,
+      matrix_class = class(x)[1],
+      has_ops = has_ops,
+      ops_table = ops_table
+    ),
+    dbdir = dbdir
+  )
+
+  pin_obj <- structure(
+    list(
+      con = list(dbdir = dbdir),
+      table_name = table_name,
+      dim_names = x@dim_names,
+      dims = x@dims,
+      matrix_class = class(x)[1],
+      has_ops = has_ops,
+      ops_table = ops_table
+    ),
+    class = c("conn_matrix_table", "conn_table")
+  )
+
+  pins::pin_write(
+    x = pin_obj,
+    board = board,
+    name = name,
+    type = "rds",
+    metadata = metadata,
+    ...
+  )
+
+  return(invisible(x))
+}
+
+#' @method write_pin_conn tbl_duckdb_connection
+#' @export
+write_pin_conn.tbl_duckdb_connection <- function(x, board, ...) {
+  sql_query <- dbplyr::sql_render(x)
+  con <- tryCatch(dbplyr::remote_con(x), error = function(e) NULL)
+  dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
+  metadata <- list(
+    host = NA,
+    type = "duckdb",
+    columns = lapply(dplyr::collect(head(x, 10)), class),
+    matrix_info = list(
+      dim_names = NULL,
+      dims = NULL,
+      matrix_class = "tbl_duckdb_connection"
+    ),
+    dbdir = dbdir
+  )
+  pin_obj <- structure(
+    list(
+      con = list(dbdir = dbdir),
+      sql = sql_query,
+      dim_names = NULL,
+      dims = NULL,
+      matrix_class = "tbl_duckdb_connection"
+    ),
+    class = c("conn_matrix_table", "conn_table")
+  )
+  pins::pin_write(
+    x = pin_obj,
+    board = board,
+    type = "rds",
+    metadata = metadata,
+    ...
+  )
+
+  return(invisible())
+}
+
+#' @method write_pin_conn tbl_sql
+#' @export
+write_pin_conn.tbl_sql <- function(x, board, ...) {
+  sql_query <- dbplyr::sql_render(x)
+  con <- dbplyr::remote_con(x)
+  dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
+
+  metadata <- list(
+    host = NA,
+    type = "sql",
+    columns = lapply(dplyr::collect(head(x, 10)), class),
+    matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl_sql"),
+    dbdir = dbdir
+  )
+
+  pin_obj <- structure(
+    list(
+      con = list(dbdir = dbdir),
+      sql = sql_query,
+      dim_names = NULL,
+      dims = NULL,
+      matrix_class = "tbl_sql"
+    ),
+    class = c("conn_matrix_table", "conn_table")
+  )
+
+  pins::pin_write(
+    x = pin_obj,
+    board = board,
+    type = "rds",
+    metadata = metadata,
+    ...
+  )
+  
+  return(invisible())
+}
+
+#' @method write_pin_conn tbl_lazy
+#' @export
+write_pin_conn.tbl_lazy <- function(x, board, ...) {
+  sql_query <- dbplyr::sql_render(x)
+  con <- dbplyr::remote_con(x)
+  dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
+
+  metadata <- list(
+    host = NA,
+    type = "lazy",
+    columns = lapply(dplyr::collect(head(x, 10)), class),
+    matrix_info = list(
+      dim_names = NULL,
+      dims = NULL,
+      matrix_class = "tbl_lazy"
+    ),
+    dbdir = dbdir
+  )
+
+  pin_obj <- structure(
+    list(
+      con = list(dbdir = dbdir),
+      sql = sql_query,
+      dim_names = NULL,
+      dims = NULL,
+      matrix_class = "tbl_lazy"
+    ),
+    class = c("conn_matrix_table", "conn_table")
+  )
+
+  pins::pin_write(
+    x = pin_obj,
+    board = board,
+    type = "rds",
+    metadata = metadata,
+    ...
+  )
+  
+  return(invisible())
+}
+
+#' @method write_pin_conn tbl
+#' @export
+write_pin_conn.tbl <- function(x, board, ...) {
+  sql_query <- dbplyr::sql_render(x)
+  con <- tryCatch(dbplyr::remote_con(x), error = function(e) NULL)
+  dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
+
+  metadata <- list(
+    host = NA,
+    type = "tbl",
+    columns = lapply(dplyr::collect(head(x, 10)), class),
+    matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl"),
+    dbdir = dbdir
+  )
+
+  pin_obj <- structure(
+    list(
+      con = list(dbdir = dbdir),
+      sql = sql_query,
+      dim_names = NULL,
+      dims = NULL,
+      matrix_class = "tbl"
+    ),
+    class = c("conn_matrix_table", "conn_table")
+  )
+
+  pins::pin_write(
+    x = pin_obj,
+    board = board,
+    type = "rds",
+    metadata = metadata,
+    ...
+  )
+
+  return(invisible())
+}
+
+#' Read a pinned dbMatrix from pins board
+#'
+#' @description S3 method for reading dbMatrix objects from a pins board.
+#' Reconstructs the full dbMatrix object including ops slot.
+#'
+#' @param x A pinned conn_matrix_table object
+#' @return A dbMatrix object (dbSparseMatrix or dbDenseMatrix)
+#' @method read_pin_conn conn_matrix_table
+#' @export
+read_pin_conn.conn_matrix_table <- function(x) {
+  # Reconnect using dbdir if available
+  dbdir <- x$con$dbdir
+  if (is.null(dbdir) || is.na(dbdir)) {
+    cli::cli_abort("No database path found in pinned object metadata.")
+  }
+  drv <- duckdb::duckdb(dbdir = dbdir)
+  con <- DBI::dbConnect(drv)
+
+  # Get table name - prefer stored table_name, fallback to SQL parsing
+  table_name <- x$table_name
+  if (is.null(table_name) || is.na(table_name)) {
+    # Legacy: parse from SQL
+    table_name <- gsub(".*FROM\\s+([^ ]+).*", "\\1", x$sql)
+  }
+
+  # Check if table exists
+  db_objects <- DBI::dbGetQuery(
+    con,
+    "SELECT table_name FROM information_schema.tables WHERE table_type IN ('BASE TABLE', 'VIEW')"
+  )$table_name
+  if (!table_name %in% db_objects) {
+    cli::cli_abort(
+      "Failed to read dbMatrix pin: table {.val {table_name}} not found in database. The table may be temporary or have been dropped."
+    )
+  }
+
+  # Check if this is a dbMatrix pin (has matrix_class)
+  if (!is.null(x$matrix_class) && x$matrix_class %in% c("dbSparseMatrix", "dbDenseMatrix")) {
+    # Reconstruct full dbMatrix object
+    new_tbl <- dplyr::tbl(con, table_name)
+
+    db_mat <- methods::new(
+      x$matrix_class,
+      value = new_tbl,
+      name = table_name,
+      dims = x$dims,
+      dim_names = x$dim_names,
+      init = TRUE,
+      ops = list()
+    )
+
+    # Load ops if present
+    if (isTRUE(x$has_ops) && !is.null(x$ops_table) && !is.na(x$ops_table)) {
+      if (x$ops_table %in% DBI::dbListTables(con)) {
+        db_mat@ops <- dbMatrix::.load_ops_table(con, x$ops_table)
+      }
+    }
+
+    return(db_mat)
+  }
+
+  # Fallback: return plain tbl reference
+  tbl_read <- dplyr::tbl(con, table_name)
+  return(tbl_read)
+}
+
