@@ -50,6 +50,7 @@ Collate:
     'dbList.R'
     'dbMatrix-pin.R'
     'dbProject-R6.R'
+    'dbSpatial-pin.R'
     'extract.R'
     'imports.R'
     'input-validation.R'
