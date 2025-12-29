@@ -38,16 +38,21 @@ con_dbi <- DBI::dbConnect(drv = duckdb::duckdb(), dbdir = ":memory:")
 ```
 
 ### Creating a new `dbProject` object
-To create a new `dbProject` object, we use the `dbProject$new()` method which follows the same arguments used in the `DBI::dbConnect()` method shown above, with an added `path` argument.
+To create a new `dbProject` object, we use the `dbProject$new()` method with these arguments:
 
-- `drv` is the DBI driver object, e.g. `duckdb::duckdb()`.
-- `path` refers to the location where the `pins_board` object will be stored. This is where the connection object and other pinned objects will be stored.
-- `...` are additional arguments passed to `DBI::dbConnect()`.
+- `path` refers to the location where the pins board will be stored for connection caching.
+- `...` are additional arguments passed to `connections::connection_open()` (e.g., `dbdir` for database file path).
 
 *Note* Because `dbProject` objects are R6 objects, we access the object's methods using the `$` operator.
 
+**Best practice**: Assign database paths to variables before passing to `dbProject$new()`. This ensures proper path resolution for connection persistence.
+
 ```{r}
-proj <- dbProject$new(drv = duckdb::duckdb(), path = "test3", dbdir = 'test.db')
+# Best practice: resolve paths first
+project_dir <- "test_dbProject"
+db_path <- file.path(project_dir, "test.db")
+
+proj <- dbProject$new(path = project_dir, dbdir = db_path)
 
 proj
 ```
@@ -79,7 +84,7 @@ mtcars
 
 We can add a database table to the `pins_board` object using the `proj$pin_write()` method. This method writes the database table to the board.
 ```{r}
-proj$pin_write(x = mtcars, name = 'mtcars')
+proj$pin_write(x = mtcars, name = "mtcars")
 
 proj
 ```
@@ -92,7 +97,7 @@ proj$disconnect()
 proj
 
 # read the pinned lazy table object
-mtcars <- proj$pin_read(name = 'mtcars')
+mtcars <- proj$pin_read(name = "mtcars")
 
 mtcars
 ```
