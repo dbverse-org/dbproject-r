@@ -1,35 +1,121 @@
+# Connection methods and reconnection logic for dbverse
+# Includes: conn(), conn<-(), dbReconnect() methods and internal reconnection helpers
+
+#' @include generics.R classes.R connection-registry.R table-reconnection.R
+
+# Internal Helpers ----
+
+# Resolve database directory path
+# Pre-resolve paths before passing to connections package
+.resolve_dbdir <- function(...) {
+  if (length(list(...)) == 0) return(NULL)
+  normalizePath(file.path(...), winslash = "/", mustWork = FALSE)
+}
+
+# Direct database reconnection
+.db_recon <- function(con, dbdir = NULL) {
+  if (is.null(dbdir)) {
+    dbdir <- tryCatch(.get_dbdir(con), error = function(e) NULL)
+  }
+
+  # In-memory fallback
+
+  if (is.null(dbdir) || dbdir == "" || dbdir == ":memory:") {
+    return(tryCatch({
+      drv <- duckdb::duckdb(dbdir = ":memory:")
+      new_con <- DBI::dbConnect(drv)
+      attr(new_con, "dbdir") <- ":memory:"
+      new_con
+    }, error = function(e) NULL))
+  }
+
+  # File-based reconnection
+  tryCatch({
+    if (!file.exists(dbdir)) return(NULL)
+    drv <- duckdb::duckdb(dbdir = dbdir)
+    new_con <- DBI::dbConnect(drv)
+    attr(new_con, "dbdir") <- dbdir
+    new_con
+  }, error = function(e) NULL)
+}
+
+# Reconnect via project
+.proj_recon <- function(path, dir) {
+  if (!dir.exists(path)) return(NULL)
+  
+  tryCatch({
+    drv <- duckdb::duckdb(dbdir = dir)
+    new_con <- DBI::dbConnect(drv)
+    attr(new_con, "dbdir") <- dir
+    .reg_add(dir, path)
+    new_con
+  }, error = function(e) NULL)
+}
+
+# Main reconnection strategy
+# Used by dbReconnect() and conn() methods
+.reconnect_conn <- function(con) {
+  tryCatch({
+    if (is.null(con)) return(con)
+
+    # Check validity
+    is_valid <- tryCatch(DBI::dbIsValid(con), error = function(e) FALSE)
+    if (is_valid) return(con)
+
+    # Get database directory
+    dir <- tryCatch({
+      path <- attr(con, "dbdir")
+      if (!is.null(path) && path != "") .norm_path(path) else NULL
+    }, error = function(e) NULL)
+
+    if (is.null(dir)) {
+      dir <- tryCatch({
+        dbdir <- con@driver@dbdir
+        if (!is.null(dbdir) && dbdir != "") .norm_path(dbdir) else NULL
+      }, error = function(e) NULL)
+    }
+
+    # In-memory or no dir: direct reconnect
+    if (is.null(dir) || dir == "" || dir == ":memory:") {
+      return(.db_recon(con, dir))
+    }
+
+    # Try project-based reconnection
+    proj_path <- .reg_find(dir)
+    if (!is.null(proj_path)) {
+      new_con <- tryCatch(.proj_recon(proj_path, dir), error = function(e) NULL)
+      if (!is.null(new_con) && DBI::dbIsValid(new_con)) return(new_con)
+    }
+
+    # Fallback to direct reconnection
+    .db_recon(con, dir)
+  }, error = function(e) {
+    warning("Failed to reconnect: ", e$message)
+    NULL
+  })
+}
+
+# conn() Methods ----
+
 #' Connection accessor methods for `dbData` objects
 #'
-#' @description
-#' Get or set the database connection for a `dbData` object.
-#'
-#' @details 
-#' For dbData objects, dynamically retrieves a valid connection, attempting
-#' reconnection if the current connection is invalid. This ensures conn() always
-#' returns a usable connection. The conn() method is designed as the
-#' accessor with auto-reconnection as a convenience feature.
-#'
-#' @return For getter: The database connection (`DBIConnection`). For setter: The updated object.
-#' @name dbData-connection-accessors
-#' @include generics.R classes.R connection-registry.R table-reconnection.R
-NULL
-
+#' @description Get or set the database connection for a `dbData` object.
+#' @details Auto-reconnects if the current connection is invalid.
 #' @param x A `dbData` object
-#' @rdname dbData-connection-accessors
+#' @param value A `DBIConnection` object
+#' @return For getter: `DBIConnection`. For setter: Updated object.
+#' @name dbData-connection-accessors
 #' @export
 setMethod("conn", "dbData", function(x) {
   current_conn <- NULL
   
-  # Get current connection from the most reliable source
   if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
     current_conn <- dbplyr::remote_con(x@value)
   } else if (!is.null(x@value) && !is.null(x@value$src) && !is.null(x@value$src$con)) {
     current_conn <- x@value$src$con
-  } else {
-    current_conn <- NULL
   }
   
-  # If connection is invalid, attempt to get a fresh one
+  # Auto-reconnect if invalid
   if (!is.null(current_conn) && !DBI::dbIsValid(current_conn)) {
     fresh_conn <- .reconnect_conn(current_conn)
     if (!is.null(fresh_conn) && DBI::dbIsValid(fresh_conn)) {
@@ -37,51 +123,24 @@ setMethod("conn", "dbData", function(x) {
     }
   }
   
-  # Return current connection (may be invalid, but that's the reality)
-  return(current_conn)
+  current_conn
 })
 
 #' @rdname dbData-connection-accessors
-#' @param x A `dbData` object
-#' @param value A `DBIConnection` object to set as the new connection.
-#' @details 
-#' For dbData objects, updates connection storage locations and recreates
-#' any tbl_duckdb_connection objects with the new connection to ensure consistency.
 #' @export
 setReplaceMethod("conn", "dbData", function(x, value) {
-  # If value slot contains a tbl_duckdb_connection object, recreate it with new connection
   if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection") && !is.null(value)) {
     x@value <- .reconnect_tbl_duckdb(x@value, value)
   }
-  
-  # Update the value$src$con pattern if available
   if (!is.null(x@value) && !is.null(x@value$src)) {
     x@value$src$con <- value
   }
-  
-  return(x)
+  x
 })
 
-#' Reconnection methods for database objects
-#'
-#' @description
-#' Reconnect database connections for `dbData` and `DBIConnection` objects.
-#' These methods handle automatic reconnection when database connections become invalid.
-#'
-#' @details 
-#' The base method for dbData objects that uses the robust dbReconnect() function
-#' and updates the object with the new connection. Unlike conn() which is used for
-#' routine connection access, dbReconnect() is specifically for explicit object repair
-#' when you need to fix a broken dbData object and update it in-place.
-#'
-#' @param x A `dbData` object or `DBIConnection` object to reconnect
-#' @return For `dbData` objects: the updated object with reconnected connection.
-#'   For `DBIConnection` objects: a new valid connection or NULL if reconnection fails.
-#' @name dbReconnect-dbData
-#' @rdname dbReconnect-dbData
-NULL
+# dbReconnect() Methods ----
 
-#' @rdname dbReconnect-dbData
+#' @rdname dbReconnect
 #' @export
 setMethod("dbReconnect", "dbData", function(x) {
   current_conn <- conn(x)
@@ -89,29 +148,23 @@ setMethod("dbReconnect", "dbData", function(x) {
     new_conn <- .reconnect_conn(current_conn)
     if (!is.null(new_conn) && DBI::dbIsValid(new_conn)) {
       conn(x) <- new_conn
-      
-      # For objects with tbl_duckdb_connection values, recreate with new connection
       if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
         x@value <- .reconnect_tbl_duckdb(x@value, new_conn)
       }
     }
   }
-  return(x)
+  x
 })
 
-#' @rdname dbReconnect-dbData
-#' @details
-#' Method for raw DBIConnection objects that uses the internal reconnection function
+#' @rdname dbReconnect
 #' @export
 setMethod("dbReconnect", "DBIConnection", function(x) {
-  return(.reconnect_conn(x))
+  .reconnect_conn(x)
 })
 
-#' @rdname dbReconnect-dbData
-#' @details
-#' Method for connections package connConnection objects
+#' @rdname dbReconnect
 #' @export
 setMethod("dbReconnect", "connConnection", function(x) {
   x@con <- dbReconnect(x@con)
-  return(x)
+  x
 })

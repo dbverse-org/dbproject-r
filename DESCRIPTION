@@ -43,7 +43,6 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
     'classes.R'
-    'connection-factory.R'
     'table-reconnection.R'
     'connection-registry.R'
     'generics.R'
