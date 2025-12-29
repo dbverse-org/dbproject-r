@@ -2,10 +2,14 @@
 <url><loc>https://dbverse-org.github.io/dbproject-r/404.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/LICENSE-text.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/LICENSE.html</loc></url>
+<url><loc>https://dbverse-org.github.io/dbproject-r/articles/connection-management.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/articles/getting_started.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/articles/index.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/authors.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/index.html</loc></url>
+<url><loc>https://dbverse-org.github.io/dbproject-r/reference/dbReconnect.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/reference/index.html</loc></url>
+<url><loc>https://dbverse-org.github.io/dbproject-r/reference/read_pin_conn.conn_spatial_table.html</loc></url>
+<url><loc>https://dbverse-org.github.io/dbproject-r/reference/write_pin_conn.dbSpatial.html</loc></url>
 </urlset>
 

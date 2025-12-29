@@ -1,0 +1,123 @@
+# Getting Started
+
+``` r
+library(dbProject)
+```
+
+## Introduction
+
+The `dbProject` package provides a user-friendly approach to creating
+and managaing a local database connection. It relies on the `pins` and
+`connections` R packages.
+
+`dbProject` objects are R6 object that contains a pinned connection
+object and other pinned objects in a user-specified directory known as a
+`pins_board`.
+
+A few reasons why we might want to use the `dbProject` approach are:
+
+1.  Reconnecting to the database when necessary (e.g. after restarting R
+    or disconnecting).
+2.  Saving lazy database tables.
+3.  Performing common database connection handling operations
+    (e.g. connect, reconnect, etc).
+
+### Creating and Connecting to a Local OLAP Database with DBI
+
+The conventional approach for establishing a connection to a local OLAP
+database in R is through the `dbConnect` method as shown here.
+
+``` r
+con_dbi <- DBI::dbConnect(drv = duckdb::duckdb(), dbdir = ":memory:")
+```
+
+#### Creating a new `dbProject` object
+
+To create a new `dbProject` object, we use the `dbProject$new()` method
+with these arguments:
+
+- `path` refers to the location where the pins board will be stored for
+  connection caching.
+- `...` are additional arguments passed to
+  [`connections::connection_open()`](https://rstudio.github.io/connections/reference/connection_open.html)
+  (e.g., `dbdir` for database file path).
+
+*Note* Because `dbProject` objects are R6 objects, we access the
+object’s methods using the `$` operator.
+
+**Best practice**: Assign database paths to variables before passing to
+`dbProject$new()`. This ensures proper path resolution for connection
+persistence.
+
+``` r
+# Best practice: resolve paths first
+project_dir <- "test_dbProject"
+db_path <- file.path(project_dir, "test.db")
+
+proj <- dbProject$new(path = project_dir, dbdir = db_path)
+
+proj
+```
+
+The `dbProject$print()` method is run whenever the object is printed. It
+displays the `path` and `board` attributes of the object, as well as the
+contents of the board.
+
+#### Disconnecting from the database
+
+When we are done with the database connection, we can disconnect using
+the `dbProject$disconnect()` method. This method closes the current
+connection, if any.
+
+``` r
+proj$disconnect()
+
+proj
+```
+
+#### Reconnecting to the database
+
+To reconnect to the database, we use the `dbProject$reconnect()` method.
+This method reads the connection object from the `pins_board` object and
+reconnects to the database.
+
+``` r
+proj$reconnect()
+
+proj
+```
+
+#### Pinning Lazy Database Tables
+
+``` r
+con <- proj$get_connection() # note: getConnection() returns a connConnection object from the {connections} R package.
+mtcars <- dplyr::copy_to(con, mtcars, temporary = FALSE, overwrite = TRUE)
+mtcars
+```
+
+We can add a database table to the `pins_board` object using the
+`proj$pin_write()` method. This method writes the database table to the
+board.
+
+``` r
+proj$pin_write(x = mtcars, name = "mtcars")
+
+proj
+```
+
+#### Reading a pinned database table
+
+After an R session restart or after disconnecting from the database, we
+can read a pinned database table using the `proj$pin_read()` method.
+This method reads the pinned object from the board.
+
+``` r
+proj$disconnect()
+
+proj
+
+# read the pinned lazy table object
+mtcars <- proj$pin_read(name = "mtcars")
+
+mtcars
+```
