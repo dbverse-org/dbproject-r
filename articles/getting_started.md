@@ -6,118 +6,142 @@ library(dbProject)
 
 ## Introduction
 
-The `dbProject` package provides a user-friendly approach to creating
-and managaing a local database connection. It relies on the `pins` and
-`connections` R packages.
+The `dbProject` package provides connection management for local DuckDB
+databases. It uses `pins` for persistent storage and enables automatic
+reconnection.
 
-`dbProject` objects are R6 object that contains a pinned connection
-object and other pinned objects in a user-specified directory known as a
-`pins_board`.
-
-A few reasons why we might want to use the `dbProject` approach are:
-
-1.  Reconnecting to the database when necessary (e.g. after restarting R
-    or disconnecting).
-2.  Saving lazy database tables.
-3.  Performing common database connection handling operations
-    (e.g. connect, reconnect, etc).
-
-### Creating and Connecting to a Local OLAP Database with DBI
-
-The conventional approach for establishing a connection to a local OLAP
-database in R is through the `dbConnect` method as shown here.
+### Creating a dbProject
 
 ``` r
-con_dbi <- DBI::dbConnect(drv = duckdb::duckdb(), dbdir = ":memory:")
-```
-
-#### Creating a new `dbProject` object
-
-To create a new `dbProject` object, we use the `dbProject$new()` method
-with these arguments:
-
-- `path` refers to the location where the pins board will be stored for
-  connection caching.
-- `...` are additional arguments passed to
-  [`connections::connection_open()`](https://rstudio.github.io/connections/reference/connection_open.html)
-  (e.g., `dbdir` for database file path).
-
-*Note* Because `dbProject` objects are R6 objects, we access the
-object’s methods using the `$` operator.
-
-**Best practice**: Assign database paths to variables before passing to
-`dbProject$new()`. This ensures proper path resolution for connection
-persistence.
-
-``` r
-# Best practice: resolve paths first
-project_dir <- "test_dbProject"
-db_path <- file.path(project_dir, "test.db")
+# Create project in temp directory
+project_dir <- tempfile("dbproject_demo")
+db_path <- file.path(project_dir, "demo.duckdb")
 
 proj <- dbProject$new(path = project_dir, dbdir = db_path)
-
+#> Creating new version '20251229T234624Z-40a8d'
+#> Writing to pin 'cachedConnection'
+#> Manifest file written to root folder of board, as `_pins.yaml`
 proj
+#> ─────────────────────────────────── dbProject ──────────────────────────────────
+#> ✔ Connected
+#> ── Board Content ───────────────────────────────────────────────────────────────
+#> Board Path: /tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73
+#> # A tibble: 1 × 6
+#>   name             type  title          created             file_size meta      
+#>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
+#> 1 cachedConnection rds   connConnectio… 2025-12-29 23:46:24       232 <pins_met>
+#> ── Database Content ────────────────────────────────────────────────────────────
+#> Database Path: /tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb
 ```
 
-The `dbProject$print()` method is run whenever the object is printed. It
-displays the `path` and `board` attributes of the object, as well as the
-contents of the board.
-
-#### Disconnecting from the database
-
-When we are done with the database connection, we can disconnect using
-the `dbProject$disconnect()` method. This method closes the current
-connection, if any.
+### Working with Data
 
 ``` r
+# Get the connection and add data
+con <- proj$get_connection()
+mtcars_tbl <- dplyr::copy_to(con, mtcars, "mtcars", temporary = FALSE, overwrite = TRUE)
+mtcars_tbl
+#> # Source:   table<mtcars> [?? x 11]
+#> # Database: DuckDB 1.4.3 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb]
+#>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
+#>  2  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#>  3  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
+#>  4  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1
+#>  5  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2
+#>  6  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1
+#>  7  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4
+#>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+#>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
+#> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
+#> # ℹ more rows
+```
+
+### Pinning Tables
+
+``` r
+proj$pin_write(x = mtcars_tbl, name = "mtcars")
+#> Creating new version '20251229T234624Z-c966a'
+#> Writing to pin 'mtcars'
+#> Manifest file written to root folder of board, as `_pins.yaml`
+proj
+#> ─────────────────────────────────── dbProject ──────────────────────────────────
+#> ✔ Connected
+#> ── Board Content ───────────────────────────────────────────────────────────────
+#> Board Path: /tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73
+#> # A tibble: 2 × 6
+#>   name             type  title          created             file_size meta      
+#>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
+#> 1 cachedConnection rds   connConnectio… 2025-12-29 23:46:24       232 <pins_met>
+#> 2 mtcars           rds   dbProject pin… 2025-12-29 23:46:24     3.08K <pins_met>
+#> ── Database Content ────────────────────────────────────────────────────────────
+#> Database Path: /tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb
+#> ℹ Tables:
+#> • mtcars
+```
+
+### Disconnecting and Reconnecting
+
+``` r
+# Disconnect
 proj$disconnect()
-
 proj
-```
+#> ─────────────────────────────────── dbProject ──────────────────────────────────
+#> ✖ Disconnected
+#> ── Board Content ───────────────────────────────────────────────────────────────
+#> Board Path: /tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73
+#> # A tibble: 2 × 6
+#>   name             type  title          created             file_size meta      
+#>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
+#> 1 cachedConnection rds   connConnectio… 2025-12-29 23:46:24       232 <pins_met>
+#> 2 mtcars           rds   dbProject pin… 2025-12-29 23:46:24     3.08K <pins_met>
+#> ── Database Content ────────────────────────────────────────────────────────────
+#> ℹ No active connection.
 
-#### Reconnecting to the database
-
-To reconnect to the database, we use the `dbProject$reconnect()` method.
-This method reads the connection object from the `pins_board` object and
-reconnects to the database.
-
-``` r
+# Reconnect
 proj$reconnect()
-
+#> 
+#> Attaching package: 'connections'
+#> The following objects are masked from 'package:dbProject':
+#> 
+#>     connection_pin_read, read_pin_conn, write_pin_conn
+#> Loading required package: DBI
 proj
+#> ─────────────────────────────────── dbProject ──────────────────────────────────
+#> ✔ Connected
+#> ── Board Content ───────────────────────────────────────────────────────────────
+#> Board Path: /tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73
+#> # A tibble: 2 × 6
+#>   name             type  title          created             file_size meta      
+#>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
+#> 1 cachedConnection rds   connConnectio… 2025-12-29 23:46:24       232 <pins_met>
+#> 2 mtcars           rds   dbProject pin… 2025-12-29 23:46:24     3.08K <pins_met>
+#> ── Database Content ────────────────────────────────────────────────────────────
+#> Database Path: /tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb
+#> ℹ Tables:
+#> • mtcars
 ```
 
-#### Pinning Lazy Database Tables
+### Reading Pinned Tables
 
 ``` r
-con <- proj$get_connection() # note: getConnection() returns a connConnection object from the {connections} R package.
-mtcars <- dplyr::copy_to(con, mtcars, temporary = FALSE, overwrite = TRUE)
-mtcars
+restored <- proj$pin_read("mtcars")
+head(restored, 5)
+#> # Source:   SQL [?? x 11]
+#> # Database: DuckDB 1.4.3 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb]
+#>     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#> 1  21       6   160   110  3.9   2.62  16.5     0     1     4     4
+#> 2  21       6   160   110  3.9   2.88  17.0     0     1     4     4
+#> 3  22.8     4   108    93  3.85  2.32  18.6     1     1     4     1
+#> 4  21.4     6   258   110  3.08  3.22  19.4     1     0     3     1
+#> 5  18.7     8   360   175  3.15  3.44  17.0     0     0     3     2
 ```
 
-We can add a database table to the `pins_board` object using the
-`proj$pin_write()` method. This method writes the database table to the
-board.
-
-``` r
-proj$pin_write(x = mtcars, name = "mtcars")
-
-proj
-```
-
-#### Reading a pinned database table
-
-After an R session restart or after disconnecting from the database, we
-can read a pinned database table using the `proj$pin_read()` method.
-This method reads the pinned object from the board.
+### Cleanup
 
 ``` r
 proj$disconnect()
-
-proj
-
-# read the pinned lazy table object
-mtcars <- proj$pin_read(name = "mtcars")
-
-mtcars
+unlink(project_dir, recursive = TRUE)
 ```

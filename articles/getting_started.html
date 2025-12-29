@@ -72,115 +72,144 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The <code>dbProject</code> package provides a user-friendly approach
-to creating and managaing a local database connection. It relies on the
-<code>pins</code> and <code>connections</code> R packages.</p>
-<p><code>dbProject</code> objects are R6 object that contains a pinned
-connection object and other pinned objects in a user-specified directory
-known as a <code>pins_board</code>.</p>
-<p>A few reasons why we might want to use the <code>dbProject</code>
-approach are:</p>
-<ol style="list-style-type: decimal">
-<li>Reconnecting to the database when necessary (e.g. after restarting R
-or disconnecting).</li>
-<li>Saving lazy database tables.</li>
-<li>Performing common database connection handling operations
-(e.g. connect, reconnect, etc).</li>
-</ol>
+<p>The <code>dbProject</code> package provides connection management for
+local DuckDB databases. It uses <code>pins</code> for persistent storage
+and enables automatic reconnection.</p>
 <div class="section level3">
-<h3 id="creating-and-connecting-to-a-local-olap-database-with-dbi">Creating and Connecting to a Local OLAP Database with DBI<a class="anchor" aria-label="anchor" href="#creating-and-connecting-to-a-local-olap-database-with-dbi"></a>
+<h3 id="creating-a-dbproject">Creating a dbProject<a class="anchor" aria-label="anchor" href="#creating-a-dbproject"></a>
 </h3>
-<p>The conventional approach for establishing a connection to a local
-OLAP database in R is through the <code>dbConnect</code> method as shown
-here.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">con_dbi</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span>drv <span class="op">=</span> <span class="fu">duckdb</span><span class="fu">::</span><span class="fu"><a href="https://r.duckdb.org/reference/duckdb.html" class="external-link">duckdb</a></span><span class="op">(</span><span class="op">)</span>, dbdir <span class="op">=</span> <span class="st">":memory:"</span><span class="op">)</span></span></code></pre></div>
-<div class="section level4">
-<h4 id="creating-a-new-dbproject-object">Creating a new <code>dbProject</code> object<a class="anchor" aria-label="anchor" href="#creating-a-new-dbproject-object"></a>
-</h4>
-<p>To create a new <code>dbProject</code> object, we use the
-<code>dbProject$new()</code> method with these arguments:</p>
-<ul>
-<li>
-<code>path</code> refers to the location where the pins board will
-be stored for connection caching.</li>
-<li>
-<code>...</code> are additional arguments passed to
-<code><a href="https://rstudio.github.io/connections/reference/connection_open.html" class="external-link">connections::connection_open()</a></code> (e.g., <code>dbdir</code>
-for database file path).</li>
-</ul>
-<p><em>Note</em> Because <code>dbProject</code> objects are R6 objects,
-we access the object’s methods using the <code>$</code> operator.</p>
-<p><strong>Best practice</strong>: Assign database paths to variables
-before passing to <code>dbProject$new()</code>. This ensures proper path
-resolution for connection persistence.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Best practice: resolve paths first</span></span>
-<span><span class="va">project_dir</span> <span class="op">&lt;-</span> <span class="st">"test_dbProject"</span></span>
-<span><span class="va">db_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project_dir</span>, <span class="st">"test.db"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Create project in temp directory</span></span>
+<span><span class="va">project_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"dbproject_demo"</span><span class="op">)</span></span>
+<span><span class="va">db_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project_dir</span>, <span class="st">"demo.duckdb"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va">dbProject</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="va">project_dir</span>, dbdir <span class="op">=</span> <span class="va">db_path</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">proj</span></span></code></pre></div>
-<p>The <code>dbProject$print()</code> method is run whenever the object
-is printed. It displays the <code>path</code> and <code>board</code>
-attributes of the object, as well as the contents of the board.</p>
-</div>
-<div class="section level4">
-<h4 id="disconnecting-from-the-database">Disconnecting from the database<a class="anchor" aria-label="anchor" href="#disconnecting-from-the-database"></a>
-</h4>
-<p>When we are done with the database connection, we can disconnect
-using the <code>dbProject$disconnect()</code> method. This method closes
-the current connection, if any.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">disconnect</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">proj</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="reconnecting-to-the-database">Reconnecting to the database<a class="anchor" aria-label="anchor" href="#reconnecting-to-the-database"></a>
-</h4>
-<p>To reconnect to the database, we use the
-<code>dbProject$reconnect()</code> method. This method reads the
-connection object from the <code>pins_board</code> object and reconnects
-to the database.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">reconnect</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">proj</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="pinning-lazy-database-tables">Pinning Lazy Database Tables<a class="anchor" aria-label="anchor" href="#pinning-lazy-database-tables"></a>
-</h4>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">get_connection</span><span class="op">(</span><span class="op">)</span> <span class="co"># note: getConnection() returns a connConnection object from the {connections} R package.</span></span>
-<span><span class="va">mtcars</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/copy_to.html" class="external-link">copy_to</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">mtcars</span>, temporary <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">mtcars</span></span></code></pre></div>
-<p>We can add a database table to the <code>pins_board</code> object
-using the <code>proj$pin_write()</code> method. This method writes the
-database table to the board.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mtcars</span>, name <span class="op">=</span> <span class="st">"mtcars"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">proj</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="reading-a-pinned-database-table">Reading a pinned database table<a class="anchor" aria-label="anchor" href="#reading-a-pinned-database-table"></a>
-</h4>
-<p>After an R session restart or after disconnecting from the database,
-we can read a pinned database table using the
-<code>proj$pin_read()</code> method. This method reads the pinned object
-from the board.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">disconnect</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
+<span><span class="co">#&gt; Creating new version '20251229T234624Z-40a8d'</span></span>
+<span><span class="co">#&gt; Writing to pin 'cachedConnection'</span></span>
+<span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
 <span><span class="va">proj</span></span>
-<span></span>
-<span><span class="co"># read the pinned lazy table object</span></span>
-<span><span class="va">mtcars</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span>name <span class="op">=</span> <span class="st">"mtcars"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mtcars</span></span></code></pre></div>
+<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
+<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
+<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-12-29 <span style="color: #949494;">23:46:24</span>       232 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb</span></span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="working-with-data">Working with Data<a class="anchor" aria-label="anchor" href="#working-with-data"></a>
+</h3>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Get the connection and add data</span></span>
+<span><span class="va">con</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">get_connection</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">mtcars_tbl</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/copy_to.html" class="external-link">copy_to</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">mtcars</span>, <span class="st">"mtcars"</span>, temporary <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">mtcars_tbl</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Source:   table&lt;mtcars&gt; [?? x 11]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 1.4.3 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb]</span></span></span>
+<span><span class="co">#&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>  21       6  160    110  3.9   2.88  17.0     0     1     4     4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>  24.4     4  147.    62  3.69  3.19  20       1     0     4     2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ more rows</span></span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="pinning-tables">Pinning Tables<a class="anchor" aria-label="anchor" href="#pinning-tables"></a>
+</h3>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mtcars_tbl</span>, name <span class="op">=</span> <span class="st">"mtcars"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Creating new version '20251229T234624Z-c966a'</span></span>
+<span><span class="co">#&gt; Writing to pin 'mtcars'</span></span>
+<span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
+<span><span class="va">proj</span></span>
+<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
+<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
+<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-12-29 <span style="color: #949494;">23:46:24</span>       232 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   dbProject pin… 2025-12-29 <span style="color: #949494;">23:46:24</span>     3.08K <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Tables:</span></span>
+<span><span class="co">#&gt; • mtcars</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="disconnecting-and-reconnecting">Disconnecting and Reconnecting<a class="anchor" aria-label="anchor" href="#disconnecting-and-reconnecting"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Disconnect</span></span>
+<span><span class="va">proj</span><span class="op">$</span><span class="fu">disconnect</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">proj</span></span>
+<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Disconnected</span></span>
+<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
+<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-12-29 <span style="color: #949494;">23:46:24</span>       232 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   dbProject pin… 2025-12-29 <span style="color: #949494;">23:46:24</span>     3.08K <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No active connection.</span></span>
+<span></span>
+<span><span class="co"># Reconnect</span></span>
+<span><span class="va">proj</span><span class="op">$</span><span class="fu">reconnect</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'connections'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:dbProject':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     connection_pin_read, read_pin_conn, write_pin_conn</span></span>
+<span><span class="co">#&gt; Loading required package: DBI</span></span>
+<span><span class="va">proj</span></span>
+<span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
+<span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
+<span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2025-12-29 <span style="color: #949494;">23:46:24</span>       232 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   dbProject pin… 2025-12-29 <span style="color: #949494;">23:46:24</span>     3.08K <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Tables:</span></span>
+<span><span class="co">#&gt; • mtcars</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="reading-pinned-tables">Reading Pinned Tables<a class="anchor" aria-label="anchor" href="#reading-pinned-tables"></a>
+</h3>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">restored</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span><span class="st">"mtcars"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">restored</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 11]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 1.4.3 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/Rtmp0uK2iC/dbproject_demo206928aa7e73/demo.duckdb]</span></span></span>
+<span><span class="co">#&gt;     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  21       6   160   110  3.9   2.62  16.5     0     1     4     4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  21       6   160   110  3.9   2.88  17.0     0     1     4     4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  22.8     4   108    93  3.85  2.32  18.6     1     1     4     1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  21.4     6   258   110  3.08  3.22  19.4     1     0     3     1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  18.7     8   360   175  3.15  3.44  17.0     0     0     3     2</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="cleanup">Cleanup<a class="anchor" aria-label="anchor" href="#cleanup"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">disconnect</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">project_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
