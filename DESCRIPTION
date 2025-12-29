@@ -25,7 +25,10 @@ Imports:
     dbplyr,
     methods,
     glue,
-    cli
+    cli,
+    R6,
+    connections,
+    yaml
 Suggests: 
     knitr,
     rmarkdown,
@@ -34,7 +37,8 @@ Suggests:
     dbSpatial
 Remotes:
     dbMatrix=dbverse-org/dbmatrix-r,
-    dbSpatial=dbverse-org/dbspatial-r
+    dbSpatial=dbverse-org/dbspatial-r,
+    connections=rstudio/connections
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
@@ -46,6 +50,7 @@ Collate:
     'connection-methods.R'
     'dbList.R'
     'dbMatrix-pin.R'
+    'dbProject-R6.R'
     'extract.R'
     'imports.R'
     'input-validation.R'
