@@ -22,18 +22,31 @@ dbProject <- R6::R6Class(
       private$path <- path
       private$board <- pins::board_folder(path, versioned = TRUE)
 
-      # Resolve dbdir parameter to prevent connections expression capture
+      # Resolve dbdir parameter to ensure absolute path
       dots <- list(...)
+      dbdir_val <- NULL
       if ("dbdir" %in% names(dots) && !is.null(dots$dbdir)) {
-        dots$dbdir <- .resolve_dbdir(dots$dbdir)
+        dbdir_val <- .resolve_dbdir(dots$dbdir)
       }
 
       tryCatch(
         {
-          private$conn <- do.call(
-            connections::connection_open,
-            c(list(drv = duckdb::duckdb()), dots)
-          )
+          # Use bquote with .() to force evaluation of dbdir value
+          # This ensures connections::connection_open captures the actual path
+          # instead of a variable name (which would fail during pin restoration)
+          if (!is.null(dbdir_val)) {
+            private$conn <- eval(bquote(
+              connections::connection_open(
+                drv = duckdb::duckdb(),
+                dbdir = .(dbdir_val)
+              )
+            ))
+          } else {
+            # In-memory database
+            private$conn <- connections::connection_open(
+              drv = duckdb::duckdb()
+            )
+          }
           connections::connection_pin_write(
             board = private$board,
             x = private$conn,
