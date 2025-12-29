@@ -51,7 +51,7 @@ methods::setGeneric("conn<-", function(x, value) {
 #' Reconnects invalid database connections for dbData objects, updating the
 #' object with the new valid connection.
 #'
-#' @name dbReconnect-dbData
+#' @name dbReconnect
 #' @param x A dbData object
 #' @return The dbData object with an updated connection
 #' @export
