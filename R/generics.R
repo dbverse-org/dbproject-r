@@ -35,7 +35,7 @@ NULL
 #' @param x A dbData object
 #' @param value A database connection
 #' @return For getter: The database connection. For setter: The updated object
-#' @seealso [dbData-class], [dbData-hierarchy]
+#' @seealso [dbData-class]
 #' @export conn
 methods::setGeneric("conn", function(x) standardGeneric("conn"))
 
