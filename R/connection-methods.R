@@ -106,3 +106,12 @@ setMethod("dbReconnect", "dbData", function(x) {
 setMethod("dbReconnect", "DBIConnection", function(x) {
   return(.reconnect_conn(x))
 })
+
+#' @rdname dbReconnect-dbData
+#' @details
+#' Method for connections package connConnection objects
+#' @export
+setMethod("dbReconnect", "connConnection", function(x) {
+  x@con <- dbReconnect(x@con)
+  return(x)
+})
