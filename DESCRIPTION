@@ -48,6 +48,7 @@ Collate:
     'dbMatrix-pin.R'
     'extract.R'
     'imports.R'
+    'input-validation.R'
     'path-utils.R'
     'to_view.R'
     'unique_table_name.R'
