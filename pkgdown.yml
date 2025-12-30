@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   connection-management: connection-management.html
   getting_started: getting_started.html
-last_built: 2025-12-29T23:46Z
+last_built: 2025-12-30T00:02Z
 urls:
   reference: https://dbverse-org.github.io/dbproject-r/reference
   article: https://dbverse-org.github.io/dbproject-r/articles
