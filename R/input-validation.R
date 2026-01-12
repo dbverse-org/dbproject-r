@@ -52,9 +52,10 @@
 #' @param conn DBI connection
 #' @param overwrite Logical or "PASS" token
 #' @param name Table name
+#' @param skip_value_check Logical, if TRUE skip value-based checks (used by dbMatrix)
 #' @keywords internal
 #' @export .check_overwrite
-.check_overwrite <- function(conn, overwrite, name) {
+.check_overwrite <- function(conn, overwrite, name, skip_value_check = FALSE) {
   # "PASS" token for lazy tables that shouldn't be overwritten
 
   if (identical(overwrite, "PASS")) {

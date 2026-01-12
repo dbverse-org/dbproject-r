@@ -4,7 +4,7 @@
 \alias{.check_overwrite}
 \title{Validate overwrite parameter and handle existing objects}
 \usage{
-.check_overwrite(conn, overwrite, name)
+.check_overwrite(conn, overwrite, name, skip_value_check = FALSE)
 }
 \arguments{
 \item{conn}{DBI connection}
@@ -12,6 +12,8 @@
 \item{overwrite}{Logical or "PASS" token}
 
 \item{name}{Table name}
+
+\item{skip_value_check}{Logical, if TRUE skip value-based checks (used by dbMatrix)}
 }
 \description{
 Validate overwrite parameter and handle existing objects
