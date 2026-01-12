@@ -72,7 +72,7 @@ write_pin_conn.dbMatrix <- function(x, board, name, ...) {
   metadata <- list(
     host = NA,
     type = "dbMatrix",
-    columns = lapply(dplyr::collect(head(x@value, 10)), class),
+	columns = lapply(dplyr::collect(head(x@value, 10)), class),
     matrix_info = list(
       dim_names = x@dim_names,
       dims = x@dims,
@@ -108,12 +108,13 @@ write_pin_conn.dbMatrix <- function(x, board, name, ...) {
 #' @export
 write_pin_conn.tbl_duckdb_connection <- function(x, board, ...) {
   sql_query <- dbplyr::sql_render(x)
+  table_name <- tryCatch(dbplyr::remote_name(x), error = function(e) NULL)
   con <- tryCatch(dbplyr::remote_con(x), error = function(e) NULL)
   dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
   metadata <- list(
     host = NA,
     type = "duckdb",
-    columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(head(x, 10)), class),
     matrix_info = list(
       dim_names = NULL,
       dims = NULL,
@@ -124,6 +125,7 @@ write_pin_conn.tbl_duckdb_connection <- function(x, board, ...) {
   pin_obj <- structure(
     list(
       con = list(dbdir = dbdir),
+      table_name = table_name,
       sql = sql_query,
       dim_names = NULL,
       dims = NULL,
@@ -146,13 +148,14 @@ write_pin_conn.tbl_duckdb_connection <- function(x, board, ...) {
 #' @export
 write_pin_conn.tbl_sql <- function(x, board, ...) {
   sql_query <- dbplyr::sql_render(x)
+  table_name <- tryCatch(dbplyr::remote_name(x), error = function(e) NULL)
   con <- dbplyr::remote_con(x)
   dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
 
   metadata <- list(
     host = NA,
     type = "sql",
-    columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(head(x, 10)), class),
     matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl_sql"),
     dbdir = dbdir
   )
@@ -160,6 +163,7 @@ write_pin_conn.tbl_sql <- function(x, board, ...) {
   pin_obj <- structure(
     list(
       con = list(dbdir = dbdir),
+      table_name = table_name,
       sql = sql_query,
       dim_names = NULL,
       dims = NULL,
@@ -183,13 +187,14 @@ write_pin_conn.tbl_sql <- function(x, board, ...) {
 #' @export
 write_pin_conn.tbl_lazy <- function(x, board, ...) {
   sql_query <- dbplyr::sql_render(x)
+  table_name <- tryCatch(dbplyr::remote_name(x), error = function(e) NULL)
   con <- dbplyr::remote_con(x)
   dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
 
   metadata <- list(
     host = NA,
     type = "lazy",
-    columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(head(x, 10)), class),
     matrix_info = list(
       dim_names = NULL,
       dims = NULL,
@@ -201,6 +206,7 @@ write_pin_conn.tbl_lazy <- function(x, board, ...) {
   pin_obj <- structure(
     list(
       con = list(dbdir = dbdir),
+      table_name = table_name,
       sql = sql_query,
       dim_names = NULL,
       dims = NULL,
@@ -224,13 +230,14 @@ write_pin_conn.tbl_lazy <- function(x, board, ...) {
 #' @export
 write_pin_conn.tbl <- function(x, board, ...) {
   sql_query <- dbplyr::sql_render(x)
+  table_name <- tryCatch(dbplyr::remote_name(x), error = function(e) NULL)
   con <- tryCatch(dbplyr::remote_con(x), error = function(e) NULL)
   dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
 
   metadata <- list(
     host = NA,
     type = "tbl",
-    columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(head(x, 10)), class),
     matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl"),
     dbdir = dbdir
   )
@@ -238,6 +245,7 @@ write_pin_conn.tbl <- function(x, board, ...) {
   pin_obj <- structure(
     list(
       con = list(dbdir = dbdir),
+      table_name = table_name,
       sql = sql_query,
       dim_names = NULL,
       dims = NULL,
@@ -275,26 +283,44 @@ read_pin_conn.conn_matrix_table <- function(x) {
   drv <- duckdb::duckdb(dbdir = dbdir)
   con <- DBI::dbConnect(drv)
 
-  # Get table name - prefer stored table_name, fallback to SQL parsing
   table_name <- x$table_name
   if (is.null(table_name) || is.na(table_name)) {
-    # Legacy: parse from SQL
-    table_name <- gsub(".*FROM\\s+([^ ]+).*", "\\1", x$sql)
+    table_name <- NULL
   }
 
-  # Check if table exists
-  db_objects <- DBI::dbGetQuery(
-    con,
-    "SELECT table_name FROM information_schema.tables WHERE table_type IN ('BASE TABLE', 'VIEW')"
-  )$table_name
-  if (!table_name %in% db_objects) {
-    cli::cli_abort(
-      "Failed to read dbMatrix pin: table {.val {table_name}} not found in database. The table may be temporary or have been dropped."
-    )
+  db_objects <- NULL
+  if (!is.null(table_name)) {
+    db_objects <- DBI::dbGetQuery(
+      con,
+      "SELECT table_name FROM information_schema.tables WHERE table_type IN ('BASE TABLE', 'VIEW')"
+    )$table_name
+
+    if (!table_name %in% db_objects) {
+      # Legacy cleanup: sometimes SQL-derived names can come through as "(tbl)".
+      stripped <- gsub("^\\((.*)\\)$", "\\1", table_name)
+      if (!identical(stripped, table_name) && stripped %in% db_objects) {
+        table_name <- stripped
+      } else {
+        cli::cli_abort(
+          "Failed to read dbMatrix pin: table {.val {table_name}} not found in database. The table may be temporary or have been dropped."
+        )
+      }
+    }
   }
 
   # Check if this is a dbMatrix pin (has matrix_class)
   if (!is.null(x$matrix_class) && x$matrix_class %in% c("dbSparseMatrix", "dbDenseMatrix")) {
+    if (is.null(table_name)) {
+      # Legacy: parse from SQL if needed
+      table_name <- gsub(".*FROM\\s+([^ ]+).*", "\\1", x$sql)
+      if (!is.null(db_objects)) {
+        stripped <- gsub("^\\((.*)\\)$", "\\1", table_name)
+        if (!identical(stripped, table_name) && stripped %in% db_objects) {
+          table_name <- stripped
+        }
+      }
+    }
+
     # Reconstruct full dbMatrix object
     new_tbl <- dplyr::tbl(con, table_name)
 
@@ -311,8 +337,16 @@ read_pin_conn.conn_matrix_table <- function(x) {
     return(db_mat)
   }
 
-  # Fallback: return plain tbl reference
-  tbl_read <- dplyr::tbl(con, table_name)
-  return(tbl_read)
+  # Non-matrix pins: prefer direct table reference when available; otherwise fall back to stored SQL.
+  if (!is.null(table_name)) {
+    return(dplyr::tbl(con, table_name))
+  }
+
+  sql_query <- x$sql
+  if (!is.null(sql_query) && !is.na(sql_query)) {
+    return(dplyr::tbl(con, dbplyr::sql(sql_query)))
+  }
+
+  cli::cli_abort("Pinned object is missing both table_name and sql.")
 }
 
