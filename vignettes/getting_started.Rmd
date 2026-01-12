@@ -38,7 +38,7 @@ proj
 
 ```{r}
 # Get the connection and add data
-con <- proj$get_connection()
+con <- proj$get_conn()
 mtcars_tbl <- dplyr::copy_to(con, mtcars, "mtcars", temporary = FALSE, overwrite = TRUE)
 mtcars_tbl
 ```

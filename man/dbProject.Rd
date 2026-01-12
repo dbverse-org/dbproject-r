@@ -21,13 +21,16 @@ my_matrix <- objs$my_matrix
 my_spatial <- objs$my_spatial
 }
 }
+\seealso{
+\code{\link[=conn]{conn()}} S4 generic for dbData objects
+}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-dbProject-new}{\code{dbProject$new()}}
 \item \href{#method-dbProject-disconnect}{\code{dbProject$disconnect()}}
 \item \href{#method-dbProject-reconnect}{\code{dbProject$reconnect()}}
-\item \href{#method-dbProject-get_connection}{\code{dbProject$get_connection()}}
+\item \href{#method-dbProject-get_conn}{\code{dbProject$get_conn()}}
 \item \href{#method-dbProject-get_board}{\code{dbProject$get_board()}}
 \item \href{#method-dbProject-pin_write}{\code{dbProject$pin_write()}}
 \item \href{#method-dbProject-pin_delete}{\code{dbProject$pin_delete()}}
@@ -80,16 +83,16 @@ Reconnect to the database in the project.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-dbProject-get_connection"></a>}}
-\if{latex}{\out{\hypertarget{method-dbProject-get_connection}{}}}
-\subsection{Method \code{get_connection()}}{
-Retrieve the connection from the project, reconnecting if necessary.
+\if{html}{\out{<a id="method-dbProject-get_conn"></a>}}
+\if{latex}{\out{\hypertarget{method-dbProject-get_conn}{}}}
+\subsection{Method \code{get_conn()}}{
+Retrieve the DBI connection from the project, reconnecting if necessary.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dbProject$get_connection()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dbProject$get_conn()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-A \code{connConnection} object created from \code{\link[connections:connection_open]{connections::connection_open}}
+A \code{DBIConnection} object for direct database operations.
 }
 }
 \if{html}{\out{<hr>}}
@@ -124,7 +127,8 @@ Write a lazy database tbl to the project.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Invisibly returns the dbProject object for method chaining.
+The materialized object (for dbMatrix/dbSpatial) pointing to permanent table,
+or invisibly returns the dbProject object for other types.
 }
 }
 \if{html}{\out{<hr>}}

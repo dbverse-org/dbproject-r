@@ -35,7 +35,7 @@ dbProject <- R6::R6Class(
           # This ensures connections::connection_open captures the actual path
           # instead of a variable name (which would fail during pin restoration)
           if (!is.null(dbdir_val)) {
-            private$conn <- eval(bquote(
+            private$conn_ <- eval(bquote(
               connections::connection_open(
                 drv = duckdb::duckdb(),
                 dbdir = .(dbdir_val)
@@ -43,13 +43,13 @@ dbProject <- R6::R6Class(
             ))
           } else {
             # In-memory database
-            private$conn <- connections::connection_open(
+            private$conn_ <- connections::connection_open(
               drv = duckdb::duckdb()
             )
           }
           connections::connection_pin_write(
             board = private$board,
-            x = private$conn,
+            x = private$conn_,
             name = "cachedConnection",
             title = "connConnection pinned object"
           )
@@ -68,9 +68,9 @@ dbProject <- R6::R6Class(
     #' @description
     #' Close the current connection, if any.
     disconnect = function() {
-      if (!is.null(private$conn)) {
-        connections::connection_close(private$conn)
-        private$conn <- NULL
+      if (!is.null(private$conn_)) {
+        connections::connection_close(private$conn_)
+        private$conn_ <- NULL
       }
       invisible(self)
     },
@@ -79,7 +79,7 @@ dbProject <- R6::R6Class(
     #' Reconnect to the database in the project.
     reconnect = function() {
       if (!is.null(private$board)) {
-        private$conn <- connections::connection_pin_read(
+        private$conn_ <- connections::connection_pin_read(
           board = private$board,
           name = "cachedConnection"
         )
@@ -88,17 +88,18 @@ dbProject <- R6::R6Class(
     },
 
     #' @description
-    #' Retrieve the connection from the project, reconnecting if necessary.
-    #' @return A `connConnection` object created from [`connections::connection_open`]
-    get_connection = function() {
-      if (is.null(private$conn)) {
+    #' Retrieve the DBI connection from the project, reconnecting if necessary.
+    #' @return A `DBIConnection` object for direct database operations.
+    #' @seealso [conn()] S4 generic for dbData objects
+    get_conn = function() {
+      if (is.null(private$conn_)) {
         if (private$has_cached_connection()) {
           self$reconnect()
         } else {
           stop("No active or cached connection available")
         }
       }
-      private$conn
+      private$conn_@con
     },
 
     #' @description
@@ -113,7 +114,8 @@ dbProject <- R6::R6Class(
     #'
     #' @param x A [`tbl`] object to be written to the board.
     #' @param name A character string specifying the name of the pin.
-    #' @return Invisibly returns the dbProject object for method chaining.
+    #' @return The materialized object (for dbMatrix/dbSpatial) pointing to permanent table,
+    #'   or invisibly returns the dbProject object for other types.
     pin_write = function(x, name) {
       if (is.null(private$board)) {
         stop("Board is not available")
@@ -121,15 +123,21 @@ dbProject <- R6::R6Class(
       if (missing(name) || !is.character(name) || length(name) != 1) {
         stop("'name' must be a single character string")
       }
-      connections::connection_pin_write(
-        board = private$board,
-        x = x,
-        name = name,
-        title = "dbProject pinned object",
-        versioned = TRUE
-      )
+      
+      # Use write_pin_conn for dbMatrix, dbSpatial, or tbl objects
+      # This enables proper S3 method dispatch
+      # IMPORTANT: write_pin_conn returns the materialized object for dbMatrix/dbSpatial
+      # We return this to prevent stale references to cleaned-up temp tables
+      result <- write_pin_conn(x = x, board = private$board, name = name)
+      
       pins::write_board_manifest(private$board)
-      invisible(self)
+      
+      # Return the materialized object (or invisible self for non-matrix types)
+      if (inherits(x, c("dbMatrix", "dbSparseMatrix", "dbDenseMatrix", "dbSpatial"))) {
+        return(result)
+      } else {
+        return(invisible(self))
+      }
     },
 
     #' @description
@@ -162,7 +170,8 @@ dbProject <- R6::R6Class(
       if (missing(name) || !is.character(name) || length(name) != 1) {
         stop("'name' must be a single character string")
       }
-      connections::connection_pin_read(
+      # Use dbProject's connection_pin_read explicitly to avoid masking by connections package
+      dbProject::connection_pin_read(
         board = private$board,
         name = name
       )
@@ -196,7 +205,7 @@ dbProject <- R6::R6Class(
       for (pin_name in names(manifest)) {
         if (pin_name == "cachedConnection") {
           # Restore connection internally
-          private$conn <- connections::connection_pin_read(
+          private$conn_ <- connections::connection_pin_read(
             board = private$board,
             name = "cachedConnection"
           )
@@ -215,10 +224,10 @@ dbProject <- R6::R6Class(
     #' @param name A character string specifying the name of the table to remove
     #' @return Invisibly returns the dbProject object for method chaining
     dbRemoveTable = function(name) {
-      if (is.null(private$conn)) {
+      if (is.null(private$conn_)) {
         stop("No active connection available")
       }
-      DBI::dbRemoveTable(private$conn@con, name)
+      DBI::dbRemoveTable(private$conn_@con, name)
       invisible(self)
     },
 
@@ -228,11 +237,11 @@ dbProject <- R6::R6Class(
     #' @param name A character string specifying the name of the table to remove
     #' @return Invisibly returns the dbProject object for method chaining
     dbRemoveView = function(name) {
-      if (is.null(private$conn)) {
+      if (is.null(private$conn_)) {
         stop("No active connection available")
       }
       sql <- glue::glue("DROP VIEW IF EXISTS {name}")
-      DBI::dbExecute(private$conn@con, sql)
+      DBI::dbExecute(private$conn_@con, sql)
       invisible(self)
     },
 
@@ -243,19 +252,19 @@ dbProject <- R6::R6Class(
     print = function(...) {
       cli::cli_rule(center = "dbProject")
 
-      if (!is.null(private$conn)) {
-        dbdir <- private$conn@con@driver@dbdir
+      if (!is.null(private$conn_)) {
+        dbdir <- private$conn_@con@driver@dbdir
 
         # Handle in-memory connections
         if (dbdir == ":memory:") {
-          if (DBI::dbIsValid(private$conn@con)) {
+          if (DBI::dbIsValid(private$conn_@con)) {
             cli::cli_alert_success("Connected")
           } else {
             cli::cli_alert_danger("Disconnected")
           }
         } else if (file.exists(dbdir)) {
           # Handle file-based connections
-          if (DBI::dbIsValid(private$conn@con)) {
+          if (DBI::dbIsValid(private$conn_@con)) {
             cli::cli_alert_success("Connected")
           } else {
             cli::cli_alert_danger("Disconnected")
@@ -292,29 +301,23 @@ dbProject <- R6::R6Class(
 
       # Database Content section
       cli::cli_rule("Database Content")
-      if (!is.null(private$conn)) {
-        dbdir <- private$conn@con@driver@dbdir
+      if (!is.null(private$conn_)) {
+        dbdir <- private$conn_@con@driver@dbdir
         cli::cli_text("Database Path: {.path {dbdir}}")
 
         if (!file.exists(dbdir) && dbdir != ":memory:") {
           cli::cli_alert_danger("Database file not found")
-        } else if (DBI::dbIsValid(private$conn@con)) {
+        } else if (DBI::dbIsValid(private$conn_@con)) {
           tryCatch(
             {
               # Query to get table types including temporary tables and views
               query <- "SELECT table_name, table_type FROM information_schema.tables"
-              table_types <- DBI::dbGetQuery(private$conn@con, query)
+              table_types <- DBI::dbGetQuery(private$conn_@con, query)
 
               # Categorize tables
-              tables <- dplyr::filter(table_types, table_type == 'BASE TABLE')
-              views <- dplyr::filter(
-                table_types,
-                grepl("VIEW", table_type, ignore.case = TRUE)
-              )
-              temp_tables <- dplyr::filter(
-                table_types,
-                grepl("TEMPORARY", table_type, ignore.case = TRUE)
-              )
+              tables <- table_types[table_types$table_type == "BASE TABLE", , drop = FALSE]
+              views <- table_types[grepl("VIEW", table_types$table_type, ignore.case = TRUE), , drop = FALSE]
+              temp_tables <- table_types[grepl("TEMPORARY", table_types$table_type, ignore.case = TRUE), , drop = FALSE]
 
               # Print categories using cli
               if (nrow(tables) > 0) {
@@ -351,12 +354,12 @@ dbProject <- R6::R6Class(
     #' Check if there is an active database connection.
     #' @return A logical value indicating whether the project has an active connection.
     is_connected = function() {
-      !is.null(private$conn) && DBI::dbIsValid(private$conn@con)
+      !is.null(private$conn_) && DBI::dbIsValid(private$conn_@con)
     }
   ),
 
   private = list(
-    conn = NULL,
+    conn_ = NULL,
     board = NULL,
     path = NULL,
 

@@ -6,7 +6,7 @@ test_that("dbProject creates project and connects", {
   proj <- dbProject$new(path = file.path(tmp_dir, "project"))
   
   expect_true(proj$is_connected())
-  expect_true(DBI::dbIsValid(proj$get_connection()@con))
+  expect_true(DBI::dbIsValid(proj$get_conn()))
   
   proj$disconnect()
 })
