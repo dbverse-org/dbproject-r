@@ -2,7 +2,9 @@
 % Please edit documentation in R/generics.R, R/connection-methods.R
 \name{dbData-connection-accessors}
 \alias{dbData-connection-accessors}
+\alias{conn}
 \alias{conn<-}
+\alias{conn,dbData-method}
 \alias{conn<-,dbData-method}
 \title{Connection accessor methods for dbData objects}
 \usage{

@@ -105,6 +105,7 @@
 #' @param value A `DBIConnection` object
 #' @return For getter: `DBIConnection`. For setter: Updated object.
 #' @name dbData-connection-accessors
+#' @aliases conn,dbData-method
 #' @export
 setMethod("conn", "dbData", function(x) {
   current_conn <- NULL

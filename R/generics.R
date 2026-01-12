@@ -32,6 +32,7 @@ NULL
 #' falling back to more generic approaches if needed.
 #'
 #' @name dbData-connection-accessors
+#' @aliases conn
 #' @param x A dbData object
 #' @param value A database connection
 #' @return For getter: The database connection. For setter: The updated object
