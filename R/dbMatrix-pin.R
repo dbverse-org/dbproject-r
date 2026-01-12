@@ -72,7 +72,7 @@ write_pin_conn.dbMatrix <- function(x, board, name, ...) {
   metadata <- list(
     host = NA,
     type = "dbMatrix",
-	columns = lapply(dplyr::collect(head(x@value, 10)), class),
+	columns = lapply(dplyr::collect(utils::head(x@value, 10)), class),
     matrix_info = list(
       dim_names = x@dim_names,
       dims = x@dims,
@@ -114,7 +114,7 @@ write_pin_conn.tbl_duckdb_connection <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "duckdb",
-	columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(
       dim_names = NULL,
       dims = NULL,
@@ -155,7 +155,7 @@ write_pin_conn.tbl_sql <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "sql",
-	columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl_sql"),
     dbdir = dbdir
   )
@@ -194,7 +194,7 @@ write_pin_conn.tbl_lazy <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "lazy",
-	columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(
       dim_names = NULL,
       dims = NULL,
@@ -237,7 +237,7 @@ write_pin_conn.tbl <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "tbl",
-	columns = lapply(dplyr::collect(head(x, 10)), class),
+	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl"),
     dbdir = dbdir
   )
