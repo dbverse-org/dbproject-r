@@ -14,5 +14,5 @@ A dbMatrix object (dbSparseMatrix or dbDenseMatrix)
 }
 \description{
 S3 method for reading dbMatrix objects from a pins board.
-Reconstructs the full dbMatrix object including ops slot.
+Reconstructs the full dbMatrix object.
 }

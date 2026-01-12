@@ -37,7 +37,6 @@ read_pin_conn <- function(x) {
 #'
 #' @description S3 method for writing dbMatrix objects to a pins board while maintaining
 #' connection state and metadata consistent with the connections package.
-#' Handles ops slot persistence for lazy affine transformations.
 #'
 #' @param x A [`dbMatrix`] object (dbSparseMatrix or dbDenseMatrix)
 #' @param board A pins [`board_folder`] object
@@ -50,45 +49,24 @@ read_pin_conn <- function(x) {
 write_pin_conn.dbMatrix <- function(x, board, name, ...) {
   con <- dbplyr::remote_con(x@value)
   incoming_dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
+  
+  # STEP 1: Always materialize to a PERMANENT table using the pin name
+  # This ensures data persists across sessions even if original was temporary
+  # Use the pin name as the permanent table name to avoid conflicts
+  permanent_name <- paste0("pin_", gsub("[^a-zA-Z0-9_]", "_", name))
+  
+  # Use dplyr::compute which dispatches to dbMatrix's compute.dbSparseMatrix method
+  # This properly handles: dimnames persistence and  temp table cleanup
+  x <- dplyr::compute(
+    x,
+    name = permanent_name,
+    temporary = FALSE,
+    dimnames = TRUE,
+    overwrite = TRUE
+  )
   table_name <- x@name
 
-  # STEP 1: Materialize via compute() if:
-  # - Table doesn't exist (lazy query)
-  # - OR has pending ops that need to be applied
-  # This ensures temp metadata tables (__dbM_*) are cleaned up and ops are materialized
-  has_pending_ops <- methods::.hasSlot(x, "ops") && length(x@ops) > 0
-  needs_compute <- is.na(table_name) || 
-                   !table_name %in% DBI::dbListTables(con) ||
-                   has_pending_ops
-  
-  if (needs_compute) {
-    x <- dplyr::compute(
-      x,
-      name = name,
-      temporary = FALSE,
-      dimnames = TRUE,
-      overwrite = TRUE
-    )
-    table_name <- x@name
-  }
-
-  # STEP 2: Save ops table if present (MUST be permanent)
-  has_ops <- FALSE
-  ops_table <- NA_character_
-  if (methods::.hasSlot(x, "ops") && length(x@ops) > 0) {
-    has_ops <- TRUE
-    ops_table <- paste0("__", table_name, "_ops")
-    # Use dbMatrix's ops table saving function
-    dbMatrix::.save_ops_table(
-      con = con,
-      ops = x@ops,
-      table_name = ops_table,
-      replace = TRUE,
-      temporary = FALSE
-    )
-  }
-
-  # STEP 3: Pin metadata (ACID-compliant via pins board)
+  # STEP 2: Pin metadata (ACID-compliant via pins board)
   dbdir <- incoming_dbdir
 
   metadata <- list(
@@ -98,9 +76,7 @@ write_pin_conn.dbMatrix <- function(x, board, name, ...) {
     matrix_info = list(
       dim_names = x@dim_names,
       dims = x@dims,
-      matrix_class = class(x)[1],
-      has_ops = has_ops,
-      ops_table = ops_table
+      matrix_class = class(x)[1]
     ),
     dbdir = dbdir
   )
@@ -111,9 +87,7 @@ write_pin_conn.dbMatrix <- function(x, board, name, ...) {
       table_name = table_name,
       dim_names = x@dim_names,
       dims = x@dims,
-      matrix_class = class(x)[1],
-      has_ops = has_ops,
-      ops_table = ops_table
+      matrix_class = class(x)[1]
     ),
     class = c("conn_matrix_table", "conn_table")
   )
@@ -286,7 +260,7 @@ write_pin_conn.tbl <- function(x, board, ...) {
 #' Read a pinned dbMatrix from pins board
 #'
 #' @description S3 method for reading dbMatrix objects from a pins board.
-#' Reconstructs the full dbMatrix object including ops slot.
+#' Reconstructs the full dbMatrix object.
 #'
 #' @param x A pinned conn_matrix_table object
 #' @return A dbMatrix object (dbSparseMatrix or dbDenseMatrix)
@@ -324,22 +298,15 @@ read_pin_conn.conn_matrix_table <- function(x) {
     # Reconstruct full dbMatrix object
     new_tbl <- dplyr::tbl(con, table_name)
 
+    # Create new dbMatrix
     db_mat <- methods::new(
       x$matrix_class,
       value = new_tbl,
       name = table_name,
       dims = x$dims,
       dim_names = x$dim_names,
-      init = TRUE,
-      ops = list()
+      init = TRUE
     )
-
-    # Load ops if present
-    if (isTRUE(x$has_ops) && !is.null(x$ops_table) && !is.na(x$ops_table)) {
-      if (x$ops_table %in% DBI::dbListTables(con)) {
-        db_mat@ops <- dbMatrix::.load_ops_table(con, x$ops_table)
-      }
-    }
 
     return(db_mat)
   }
