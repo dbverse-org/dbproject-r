@@ -8,7 +8,7 @@ Authors@R:
     person("Ruben", "Dries", email = "rubendries@gmail.com", role = c("aut")))
 Author: Edward C. Ruiz [aut, cre] (<ecr7407@gmail.com>), Jiaji George Chen [aut] (<jiajic@bu.edu>), Ruben Dries [aut] (<rubendries@gmail.com>
 Maintainer: Edward C. Ruiz <ecr7407@gmail.com>
-Description: Database Connection Management and Utils in the `dbverse`
+Description: Database connection management and utilities in the `dbverse`.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -32,6 +32,7 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
+    withr,
     testthat (>= 3.0.0),
     dbMatrix,
     dbSpatial

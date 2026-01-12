@@ -1,5 +1,5 @@
 #' List remote tables, temporary tables, and views
-#' @inheritParams DBI::dbListTables
+#' @param conn A DBIConnection object, as returned by [DBI::dbConnect()].
 #' @export
 #' @description
 #' Pretty prints tables, temporary tables, and views in the database.
@@ -16,15 +16,9 @@ setMethod('dbList', signature(conn = 'DBIConnection'), function(conn) {
   table_types <- DBI::dbGetQuery(conn, query)
 
   # Categorize tables based on their types
-  tables <- dplyr::filter(table_types, table_type == 'BASE TABLE')
-  views <- dplyr::filter(
-    table_types,
-    grepl("VIEW", table_type, ignore.case = TRUE)
-  )
-  temp_tables <- dplyr::filter(
-    table_types,
-    grepl("TEMPORARY", table_type, ignore.case = TRUE)
-  )
+  tables <- table_types[table_types$table_type == "BASE TABLE", , drop = FALSE]
+  views <- table_types[grepl("VIEW", table_types$table_type, ignore.case = TRUE), , drop = FALSE]
+  temp_tables <- table_types[grepl("TEMPORARY", table_types$table_type, ignore.case = TRUE), , drop = FALSE]
 
   print_category <- function(category_name, items) {
     cat(crayon::green(paste0(category_name, ": \n")))

@@ -7,8 +7,7 @@
 \S4method{dbList}{DBIConnection}(conn)
 }
 \arguments{
-\item{conn}{A \linkS4class{DBIConnection} object, as returned by
-\code{\link[DBI:dbConnect]{dbConnect()}}.}
+\item{conn}{A DBIConnection object, as returned by \code{\link[DBI:dbConnect]{DBI::dbConnect()}}.}
 }
 \description{
 Pretty prints tables, temporary tables, and views in the database.
