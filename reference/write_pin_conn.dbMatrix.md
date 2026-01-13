@@ -2,7 +2,6 @@
 
 S3 method for writing dbMatrix objects to a pins board while maintaining
 connection state and metadata consistent with the connections package.
-Handles ops slot persistence for lazy affine transformations.
 
 ## Usage
 

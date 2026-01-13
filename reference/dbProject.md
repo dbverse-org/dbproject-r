@@ -6,6 +6,11 @@ tables. Wraps a
 with a cached connection object stored as "cachedConnection" for
 automatic reconnection.
 
+## See also
+
+[`conn()`](https://dbverse-org.github.io/dbproject-r/reference/dbData-connection-accessors.md)
+S4 generic for dbData objects
+
 ## Methods
 
 ### Public methods
@@ -16,7 +21,7 @@ automatic reconnection.
 
 - [`dbProject$reconnect()`](#method-dbProject-reconnect)
 
-- [`dbProject$get_connection()`](#method-dbProject-get_connection)
+- [`dbProject$get_conn()`](#method-dbProject-get_conn)
 
 - [`dbProject$get_board()`](#method-dbProject-get_board)
 
@@ -81,18 +86,17 @@ Reconnect to the database in the project.
 
 ------------------------------------------------------------------------
 
-### Method `get_connection()`
+### Method `get_conn()`
 
-Retrieve the connection from the project, reconnecting if necessary.
+Retrieve the DBI connection from the project, reconnecting if necessary.
 
 #### Usage
 
-    dbProject$get_connection()
+    dbProject$get_conn()
 
 #### Returns
 
-A `connConnection` object created from
-[`connections::connection_open`](https://rstudio.github.io/connections/reference/connection_open.html)
+A `DBIConnection` object for direct database operations.
 
 ------------------------------------------------------------------------
 
@@ -135,7 +139,8 @@ Write a lazy database tbl to the project.
 
 #### Returns
 
-Invisibly returns the dbProject object for method chaining.
+The materialized object (for dbMatrix/dbSpatial) pointing to permanent
+table, or invisibly returns the dbProject object for other types.
 
 ------------------------------------------------------------------------
 

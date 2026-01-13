@@ -13,3 +13,10 @@ Understanding connection management in dbProject
 
 - [Connection
   Management](https://dbverse-org.github.io/dbproject-r/articles/connection-management.md):
+
+### Troubleshooting
+
+Common issues and FAQs
+
+- [Troubleshooting &
+  FAQ](https://dbverse-org.github.io/dbproject-r/articles/troubleshooting.md):

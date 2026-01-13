@@ -9,6 +9,11 @@
 - [`conn()`](https://dbverse-org.github.io/dbproject-r/reference/dbData-connection-accessors.md)
   [`` `conn<-`() ``](https://dbverse-org.github.io/dbproject-r/reference/dbData-connection-accessors.md)
   : Connection accessor methods for dbData objects
+- [`dbData-extract`](https://dbverse-org.github.io/dbproject-r/reference/dbData-extract.md)
+  [`[`](https://dbverse-org.github.io/dbproject-r/reference/dbData-extract.md)
+  [`[,dbData-method`](https://dbverse-org.github.io/dbproject-r/reference/dbData-extract.md)
+  [`[<-,dbData-method`](https://dbverse-org.github.io/dbproject-r/reference/dbData-extract.md)
+  : Extract and replace methods for dbData objects
 - [`dbList(`*`<DBIConnection>`*`)`](https://dbverse-org.github.io/dbproject-r/reference/dbList-DBIConnection-method.md)
   : List remote tables, temporary tables, and views
 - [`dbList()`](https://dbverse-org.github.io/dbproject-r/reference/dbList.md)

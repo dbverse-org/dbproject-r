@@ -14,7 +14,7 @@ dbList(conn)
 - conn:
 
   A DBIConnection object, as returned by
-  [`dbConnect()`](https://dbi.r-dbi.org/reference/dbConnect.html).
+  [`DBI::dbConnect()`](https://dbi.r-dbi.org/reference/dbConnect.html).
 
 ## Details
 

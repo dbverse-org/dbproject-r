@@ -51,6 +51,10 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 
 
     <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="dbData-connection-accessors.html">conn()</a></code> S4 generic for dbData objects</p></div>
+    </div>
+    <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
@@ -59,7 +63,7 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 <ul><li><p><a href="#method-dbProject-new"><code>dbProject$new()</code></a></p></li>
 <li><p><a href="#method-dbProject-disconnect"><code>dbProject$disconnect()</code></a></p></li>
 <li><p><a href="#method-dbProject-reconnect"><code>dbProject$reconnect()</code></a></p></li>
-<li><p><a href="#method-dbProject-get_connection"><code>dbProject$get_connection()</code></a></p></li>
+<li><p><a href="#method-dbProject-get_conn"><code>dbProject$get_conn()</code></a></p></li>
 <li><p><a href="#method-dbProject-get_board"><code>dbProject$get_board()</code></a></p></li>
 <li><p><a href="#method-dbProject-pin_write"><code>dbProject$pin_write()</code></a></p></li>
 <li><p><a href="#method-dbProject-pin_delete"><code>dbProject$pin_delete()</code></a></p></li>
@@ -106,16 +110,16 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 </div>
 
 
-</div><p></p><hr><a id="method-dbProject-get_connection"></a><div class="section">
-<h3 id="method-get-connection-">Method <code>get_connection()</code><a class="anchor" aria-label="anchor" href="#method-get-connection-"></a></h3>
-<p>Retrieve the connection from the project, reconnecting if necessary.</p><div class="section">
+</div><p></p><hr><a id="method-dbProject-get_conn"></a><div class="section">
+<h3 id="method-get-conn-">Method <code>get_conn()</code><a class="anchor" aria-label="anchor" href="#method-get-conn-"></a></h3>
+<p>Retrieve the DBI connection from the project, reconnecting if necessary.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">get_connection</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">get_conn</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
-<p>A <code>connConnection</code> object created from <code><a href="https://rstudio.github.io/connections/reference/connection_open.html" class="external-link">connections::connection_open</a></code></p>
+<p>A <code>DBIConnection</code> object for direct database operations.</p>
 </div>
 
 </div><p></p><hr><a id="method-dbProject-get_board"></a><div class="section">
@@ -151,7 +155,8 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 </div>
 <div class="section">
 <h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
-<p>Invisibly returns the dbProject object for method chaining.</p>
+<p>The materialized object (for dbMatrix/dbSpatial) pointing to permanent table,
+or invisibly returns the dbProject object for other types.</p>
 </div>
 
 </div><p></p><hr><a id="method-dbProject-pin_delete"></a><div class="section">

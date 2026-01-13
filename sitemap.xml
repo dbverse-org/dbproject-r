@@ -5,11 +5,13 @@
 <url><loc>https://dbverse-org.github.io/dbproject-r/articles/connection-management.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/articles/getting_started.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/articles/index.html</loc></url>
+<url><loc>https://dbverse-org.github.io/dbproject-r/articles/troubleshooting.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/authors.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/index.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/reference/connection_pin_read.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/reference/dbData-class.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/reference/dbData-connection-accessors.html</loc></url>
+<url><loc>https://dbverse-org.github.io/dbproject-r/reference/dbData-extract.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/reference/dbList-DBIConnection-method.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/reference/dbList.html</loc></url>
 <url><loc>https://dbverse-org.github.io/dbproject-r/reference/dbLoad.html</loc></url>
