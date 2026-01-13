@@ -13,3 +13,8 @@ articles:
     desc: Understanding connection management in dbProject
     contents:
       - connection-management
+
+  - title: Troubleshooting
+    desc: Common issues and FAQs
+    contents:
+      - troubleshooting
