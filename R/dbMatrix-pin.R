@@ -11,6 +11,23 @@ write_pin_conn <- function(x, board, ...) {
   UseMethod("write_pin_conn")
 }
 
+#' Default method for write_pin_conn
+#'
+#' @description Fallback method for non-database objects. Delegates directly to
+#' pins::pin_write() for regular R objects (matrices, data.frames, vectors, etc.)
+#'
+#' @param x Any R object
+#' @param board A pins board object
+#' @param ... Additional arguments passed to pins::pin_write()
+#'
+#' @return Invisibly returns the input object
+#' @method write_pin_conn default
+#' @export
+write_pin_conn.default <- function(x, board, ...) {
+  pins::pin_write(x = x, board = board, ...)
+  return(invisible(x))
+}
+
 #' Read a pinned dbMatrix object from a board
 #' @param board A pins board object
 #' @param name The name of the pin

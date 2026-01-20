@@ -7,7 +7,7 @@
 \method{write_pin_conn}{dbMatrix}(x, board, name, ...)
 }
 \arguments{
-\item{x}{A \code{\link[dbMatrix:dbMatrix-class]{dbMatrix::dbMatrix}} object (dbSparseMatrix or dbDenseMatrix)}
+\item{x}{A \code{\link[dbMatrix:dbMatrix]{dbMatrix::dbMatrix}} object (dbSparseMatrix or dbDenseMatrix)}
 
 \item{board}{A pins \code{\link[pins:board_folder]{pins::board_folder}} object}
 
