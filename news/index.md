@@ -1,5 +1,21 @@
 # Changelog
 
+## dbProject 0.0.0.9002 (2026-01-19)
+
+### Bug fixes
+
+- Add default `write_pin_conn` method.
+
+- Restore pinned objects after db directory changes via `set_dbdir`.
+
+### Code style
+
+- Reformat with air.
+
+### Testing
+
+- Ensure pins reconnect after db moves.
+
 ## dbProject 0.0.0.9001 (2026-01-13)
 
 ### Bug fixes

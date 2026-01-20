@@ -15,13 +15,13 @@ Source:
 [`DESCRIPTION`](https://github.com/dbverse-org/dbproject-r/blob/main/DESCRIPTION)
 
 Ruiz E, George Chen J, Dries R (2026). *dbProject: Database Connection
-Management and Utils in the 'dbverse'*. R package version 0.0.0.9001,
+Management and Utils in the 'dbverse'*. R package version 0.0.0.9002,
 <https://github.com/dbverse-org/dbproject-r>.
 
     @Manual{,
       title = {dbProject: Database Connection Management and Utils in the `dbverse`},
       author = {Edward C. Ruiz and Jiaji {George Chen} and Ruben Dries},
       year = {2026},
-      note = {R package version 0.0.0.9001},
+      note = {R package version 0.0.0.9002},
       url = {https://github.com/dbverse-org/dbproject-r},
     }

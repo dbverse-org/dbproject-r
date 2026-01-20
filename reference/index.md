@@ -40,3 +40,5 @@
   : Write a dbMatrix object to a pins board
 - [`write_pin_conn(`*`<dbSpatial>`*`)`](https://dbverse-org.github.io/dbproject-r/reference/write_pin_conn.dbSpatial.md)
   : Write a dbSpatial object to a pins board
+- [`write_pin_conn(`*`<default>`*`)`](https://dbverse-org.github.io/dbproject-r/reference/write_pin_conn.default.md)
+  : Default method for write_pin_conn

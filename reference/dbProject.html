@@ -11,7 +11,7 @@ Wraps a pins::board_folder() with a cached connection object stored as
 
     <a class="navbar-brand me-2" href="../index.html">dbProject</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,6 +64,7 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 <ul><li><p><a href="#method-dbProject-new"><code>dbProject$new()</code></a></p></li>
 <li><p><a href="#method-dbProject-disconnect"><code>dbProject$disconnect()</code></a></p></li>
 <li><p><a href="#method-dbProject-reconnect"><code>dbProject$reconnect()</code></a></p></li>
+<li><p><a href="#method-dbProject-set_dbdir"><code>dbProject$set_dbdir()</code></a></p></li>
 <li><p><a href="#method-dbProject-get_conn"><code>dbProject$get_conn()</code></a></p></li>
 <li><p><a href="#method-dbProject-get_board"><code>dbProject$get_board()</code></a></p></li>
 <li><p><a href="#method-dbProject-pin_write"><code>dbProject$pin_write()</code></a></p></li>
@@ -111,10 +112,33 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 </div>
 
 
+</div><p></p><hr><a id="method-dbProject-set_dbdir"></a><div class="section">
+<h3 id="method-set-dbdir-">Method <code>set_dbdir()</code><a class="anchor" aria-label="anchor" href="#method-set-dbdir-"></a></h3>
+<p>Update the project's cached DuckDB database path.</p><div class="section">
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">set_dbdir</span><span class="op">(</span><span class="va">dbdir</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>dbdir</code></dt>
+<dd><p>Path to the DuckDB database file.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+<div class="section">
+<h4 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h4>
+<p>Overwrites the "cachedConnection" pin with a connection that uses the
+provided <code>dbdir</code>. Uses forced evaluation to avoid pins restoring a
+connection that references an out-of-scope variable.</p>
+</div>
+
+
 </div><p></p><hr><a id="method-dbProject-get_conn"></a><div class="section">
 <h3 id="method-get-conn-">Method <code>get_conn()</code><a class="anchor" aria-label="anchor" href="#method-get-conn-"></a></h3>
 <p>Retrieve the DBI connection from the project, reconnecting if necessary.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">get_conn</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -126,7 +150,7 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 </div><p></p><hr><a id="method-dbProject-get_board"></a><div class="section">
 <h3 id="method-get-board-">Method <code>get_board()</code><a class="anchor" aria-label="anchor" href="#method-get-board-"></a></h3>
 <p>Return the <code><a href="https://pins.rstudio.com/reference/board_folder.html" class="external-link">pins::board_folder()</a></code> object used by the project.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">get_board</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -138,12 +162,12 @@ Wraps a <code><a href="https://pins.rstudio.com/reference/board_folder.html" cla
 </div><p></p><hr><a id="method-dbProject-pin_write"></a><div class="section">
 <h3 id="method-pin-write-">Method <code>pin_write()</code><a class="anchor" aria-label="anchor" href="#method-pin-write-"></a></h3>
 <p>Write a lazy database tbl to the project.</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span><span class="va">x</span>, <span class="va">name</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>x</code></dt>
 <dd><p>A <code><a href="https://dplyr.tidyverse.org/reference/tbl.html" class="external-link">dplyr::tbl</a></code> object to be written to the board.</p></dd>
 
@@ -163,12 +187,12 @@ or invisibly returns the dbProject object for other types.</p>
 </div><p></p><hr><a id="method-dbProject-pin_delete"></a><div class="section">
 <h3 id="method-pin-delete-">Method <code>pin_delete()</code><a class="anchor" aria-label="anchor" href="#method-pin-delete-"></a></h3>
 <p>Delete a pin from the project.</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">pin_delete</span><span class="op">(</span><span class="va">name</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>name</code></dt>
 <dd><p>A character string specifying the name of the pin to delete.</p></dd>
 
@@ -187,12 +211,12 @@ or invisibly returns the dbProject object for other types.</p>
 </div><p></p><hr><a id="method-dbProject-pin_read"></a><div class="section">
 <h3 id="method-pin-read-">Method <code>pin_read()</code><a class="anchor" aria-label="anchor" href="#method-pin-read-"></a></h3>
 <p>Read a pinned object from the project's board.</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>name</code></dt>
 <dd><p>A character string specifying the name of the pin.</p></dd>
 
@@ -207,12 +231,12 @@ or invisibly returns the dbProject object for other types.</p>
 </div><p></p><hr><a id="method-dbProject-restore"></a><div class="section">
 <h3 id="method-restore-">Method <code>restore()</code><a class="anchor" aria-label="anchor" href="#method-restore-"></a></h3>
 <p>Restore all pins from the board manifest.</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">restore</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h4>
+<h4 id="details-1">Details<a class="anchor" aria-label="anchor" href="#details-1"></a></h4>
 <p>Reads the board manifest and restores the cached connection and all
 pinned objects. The connection is restored internally, while other
 pinned objects are returned as a named list for the user to assign.</p>
@@ -237,12 +261,12 @@ my_spatial &lt;- objs$my_spatial
 </div><p></p><hr><a id="method-dbProject-dbRemoveTable"></a><div class="section">
 <h3 id="method-dbremovetable-">Method <code>dbRemoveTable()</code><a class="anchor" aria-label="anchor" href="#method-dbremovetable-"></a></h3>
 <p>Remove a table from the connected database</p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">dbRemoveTable</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>name</code></dt>
 <dd><p>A character string specifying the name of the table to remove</p></dd>
 
@@ -257,12 +281,12 @@ my_spatial &lt;- objs$my_spatial
 </div><p></p><hr><a id="method-dbProject-dbRemoveView"></a><div class="section">
 <h3 id="method-dbremoveview-">Method <code>dbRemoveView()</code><a class="anchor" aria-label="anchor" href="#method-dbremoveview-"></a></h3>
 <p>Remove a view from the connected database</p><div class="section">
-<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">dbRemoveView</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>name</code></dt>
 <dd><p>A character string specifying the name of the table to remove</p></dd>
 
@@ -277,12 +301,12 @@ my_spatial &lt;- objs$my_spatial
 </div><p></p><hr><a id="method-dbProject-print"></a><div class="section">
 <h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
 <p>Print summary information, including connection status, path, and board details.</p><div class="section">
-<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>Unused arguments (for consistency with generic print method)</p></dd>
 
@@ -293,7 +317,7 @@ my_spatial &lt;- objs$my_spatial
 </div><p></p><hr><a id="method-dbProject-is_connected"></a><div class="section">
 <h3 id="method-is-connected-">Method <code>is_connected()</code><a class="anchor" aria-label="anchor" href="#method-is-connected-"></a></h3>
 <p>Check if there is an active database connection.</p><div class="section">
-<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">is_connected</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -305,12 +329,12 @@ my_spatial &lt;- objs$my_spatial
 </div><p></p><hr><a id="method-dbProject-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
+<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">dbProject</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

@@ -21,6 +21,8 @@ S4 generic for dbData objects
 
 - [`dbProject$reconnect()`](#method-dbProject-reconnect)
 
+- [`dbProject$set_dbdir()`](#method-dbProject-set_dbdir)
+
 - [`dbProject$get_conn()`](#method-dbProject-get_conn)
 
 - [`dbProject$get_board()`](#method-dbProject-get_board)
@@ -83,6 +85,28 @@ Reconnect to the database in the project.
 #### Usage
 
     dbProject$reconnect()
+
+------------------------------------------------------------------------
+
+### Method `set_dbdir()`
+
+Update the project's cached DuckDB database path.
+
+#### Usage
+
+    dbProject$set_dbdir(dbdir)
+
+#### Arguments
+
+- `dbdir`:
+
+  Path to the DuckDB database file.
+
+#### Details
+
+Overwrites the "cachedConnection" pin with a connection that uses the
+provided `dbdir`. Uses forced evaluation to avoid pins restoring a
+connection that references an out-of-scope variable.
 
 ------------------------------------------------------------------------
 
