@@ -30,6 +30,7 @@ my_spatial <- objs$my_spatial
 \item \href{#method-dbProject-new}{\code{dbProject$new()}}
 \item \href{#method-dbProject-disconnect}{\code{dbProject$disconnect()}}
 \item \href{#method-dbProject-reconnect}{\code{dbProject$reconnect()}}
+\item \href{#method-dbProject-set_dbdir}{\code{dbProject$set_dbdir()}}
 \item \href{#method-dbProject-get_conn}{\code{dbProject$get_conn()}}
 \item \href{#method-dbProject-get_board}{\code{dbProject$get_board()}}
 \item \href{#method-dbProject-pin_write}{\code{dbProject$pin_write()}}
@@ -79,6 +80,29 @@ Close the current connection, if any.
 Reconnect to the database in the project.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dbProject$reconnect()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dbProject-set_dbdir"></a>}}
+\if{latex}{\out{\hypertarget{method-dbProject-set_dbdir}{}}}
+\subsection{Method \code{set_dbdir()}}{
+Update the project's cached DuckDB database path.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dbProject$set_dbdir(dbdir)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{dbdir}}{Path to the DuckDB database file.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Details}{
+Overwrites the "cachedConnection" pin with a connection that uses the
+provided \code{dbdir}. Uses forced evaluation to avoid pins restoring a
+connection that references an out-of-scope variable.
 }
 
 }

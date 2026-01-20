@@ -88,6 +88,43 @@ dbProject <- R6::R6Class(
     },
 
     #' @description
+    #' Update the project's cached DuckDB database path.
+    #'
+    #' @details
+    #' Overwrites the "cachedConnection" pin with a connection that uses the
+    #' provided `dbdir`. Uses forced evaluation to avoid pins restoring a
+    #' connection that references an out-of-scope variable.
+    #'
+    #' @param dbdir Path to the DuckDB database file.
+    set_dbdir = function(dbdir) {
+      if (is.null(private$board)) {
+        stop("Board is not available")
+      }
+      if (is.null(dbdir) || !is.character(dbdir) || length(dbdir) != 1) {
+        stop("'dbdir' must be a single character string")
+      }
+
+      dbdir_val <- .resolve_dbdir(dbdir)
+
+      # Ensure the stored connection spec captures the literal path.
+      private$conn_ <- eval(bquote(
+        connections::connection_open(
+          drv = duckdb::duckdb(),
+          dbdir = .(dbdir_val)
+        )
+      ))
+
+      connections::connection_pin_write(
+        board = private$board,
+        x = private$conn_,
+        name = "cachedConnection",
+        title = "connConnection pinned object"
+      )
+      pins::write_board_manifest(private$board)
+      invisible(self)
+    },
+
+    #' @description
     #' Retrieve the DBI connection from the project, reconnecting if necessary.
     #' @return A `DBIConnection` object for direct database operations.
     #' @seealso [conn()] S4 generic for dbData objects
@@ -170,11 +207,66 @@ dbProject <- R6::R6Class(
       if (missing(name) || !is.character(name) || length(name) != 1) {
         stop("'name' must be a single character string")
       }
-      # Use dbProject's connection_pin_read explicitly to avoid masking by connections package
-      dbProject::connection_pin_read(
-        board = private$board,
-        name = name
-      )
+      if (identical(name, "cachedConnection")) {
+        return(connections::connection_pin_read(board = private$board, name = "cachedConnection"))
+      }
+
+      pinned <- pins::pin_read(board = private$board, name = name)
+      if (!inherits(pinned, "conn_table")) {
+        return(pinned)
+      }
+
+      con <- self$get_conn()
+
+      if (inherits(pinned, "conn_matrix_table")) {
+        table_name <- pinned$table_name %||% NA_character_
+        if (is.na(table_name) || !nzchar(table_name)) {
+          table_name <- NULL
+        }
+
+        if (!is.null(pinned$matrix_class) && pinned$matrix_class %in% c("dbSparseMatrix", "dbDenseMatrix")) {
+          if (is.null(table_name)) {
+            cli::cli_abort("Pinned dbMatrix is missing table_name.")
+          }
+          new_tbl <- dplyr::tbl(con, table_name)
+          return(methods::new(
+            pinned$matrix_class,
+            value = new_tbl,
+            name = table_name,
+            dims = pinned$dims,
+            dim_names = pinned$dim_names,
+            init = TRUE
+          ))
+        }
+
+        if (!is.null(table_name)) {
+          return(dplyr::tbl(con, table_name))
+        }
+
+        sql_query <- pinned$sql
+        if (!is.null(sql_query) && !is.na(sql_query)) {
+          return(dplyr::tbl(con, dbplyr::sql(sql_query)))
+        }
+
+        cli::cli_abort("Pinned object is missing both table_name and sql.")
+      }
+
+      if (inherits(pinned, "conn_spatial_table")) {
+        table_name <- pinned$table_name
+        if (is.null(table_name) || is.na(table_name)) {
+          cli::cli_abort("No table name found in pinned object metadata.")
+        }
+
+        new_tbl <- dplyr::tbl(con, table_name)
+        return(methods::new(
+          "dbSpatial",
+          value = new_tbl,
+          name = table_name
+        ))
+      }
+
+      # Unknown conn_table type: fall back to returning the pin payload.
+      pinned
     },
 
     #' @description
