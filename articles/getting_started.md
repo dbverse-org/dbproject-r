@@ -18,20 +18,20 @@ project_dir <- tempfile("dbproject_demo")
 db_path <- file.path(project_dir, "demo.duckdb")
 
 proj <- dbProject$new(path = project_dir, dbdir = db_path)
-#> Creating new version '20260120T002400Z-a560f'
+#> Creating new version '20260202T135613Z-0232d'
 #> Writing to pin 'cachedConnection'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✔ Connected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpudGb6d/dbproject_demo22692441d001
+#> Board Path: /tmp/RtmpQdugvV/dbproject_demo2306e8ed674
 #> # A tibble: 1 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-01-20 00:24:00       231 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-02-02 13:56:13       231 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
-#> Database Path: /tmp/RtmpudGb6d/dbproject_demo22692441d001/demo.duckdb
+#> Database Path: /tmp/RtmpQdugvV/dbproject_demo2306e8ed674/demo.duckdb
 ```
 
 ### Working with Data
@@ -42,7 +42,7 @@ con <- proj$get_conn()
 mtcars_tbl <- dplyr::copy_to(con, mtcars, "mtcars", temporary = FALSE, overwrite = TRUE)
 mtcars_tbl
 #> # Source:   table<mtcars> [?? x 11]
-#> # Database: DuckDB 1.4.3 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/RtmpudGb6d/dbproject_demo22692441d001/demo.duckdb]
+#> # Database: DuckDB 1.4.4 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/RtmpQdugvV/dbproject_demo2306e8ed674/demo.duckdb]
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -62,21 +62,21 @@ mtcars_tbl
 
 ``` r
 proj$pin_write(x = mtcars_tbl, name = "mtcars")
-#> Creating new version '20260120T002401Z-8fb0b'
+#> Creating new version '20260202T135614Z-f0673'
 #> Writing to pin 'mtcars'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✔ Connected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpudGb6d/dbproject_demo22692441d001
+#> Board Path: /tmp/RtmpQdugvV/dbproject_demo2306e8ed674
 #> # A tibble: 2 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-01-20 00:24:00       231 <pins_met>
-#> 2 mtcars           rds   mtcars: a pin… 2026-01-20 00:24:01       268 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-02-02 13:56:13       231 <pins_met>
+#> 2 mtcars           rds   mtcars: a pin… 2026-02-02 13:56:14       267 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
-#> Database Path: /tmp/RtmpudGb6d/dbproject_demo22692441d001/demo.duckdb
+#> Database Path: /tmp/RtmpQdugvV/dbproject_demo2306e8ed674/demo.duckdb
 #> ℹ Tables:
 #> • mtcars
 ```
@@ -90,12 +90,12 @@ proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✖ Disconnected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpudGb6d/dbproject_demo22692441d001
+#> Board Path: /tmp/RtmpQdugvV/dbproject_demo2306e8ed674
 #> # A tibble: 2 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-01-20 00:24:00       231 <pins_met>
-#> 2 mtcars           rds   mtcars: a pin… 2026-01-20 00:24:01       268 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-02-02 13:56:13       231 <pins_met>
+#> 2 mtcars           rds   mtcars: a pin… 2026-02-02 13:56:14       267 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
 #> ℹ No active connection.
 
@@ -111,14 +111,14 @@ proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✔ Connected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpudGb6d/dbproject_demo22692441d001
+#> Board Path: /tmp/RtmpQdugvV/dbproject_demo2306e8ed674
 #> # A tibble: 2 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-01-20 00:24:00       231 <pins_met>
-#> 2 mtcars           rds   mtcars: a pin… 2026-01-20 00:24:01       268 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-02-02 13:56:13       231 <pins_met>
+#> 2 mtcars           rds   mtcars: a pin… 2026-02-02 13:56:14       267 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
-#> Database Path: /tmp/RtmpudGb6d/dbproject_demo22692441d001/demo.duckdb
+#> Database Path: /tmp/RtmpQdugvV/dbproject_demo2306e8ed674/demo.duckdb
 #> ℹ Tables:
 #> • mtcars
 ```
@@ -129,7 +129,7 @@ proj
 restored <- proj$pin_read("mtcars")
 head(restored, 5)
 #> # Source:   SQL [?? x 11]
-#> # Database: DuckDB 1.4.3 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/RtmpudGb6d/dbproject_demo22692441d001/demo.duckdb]
+#> # Database: DuckDB 1.4.4 [unknown@Linux 6.11.0-1018-azure:R 4.5.2//tmp/RtmpQdugvV/dbproject_demo2306e8ed674/demo.duckdb]
 #>     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #> 1  21       6   160   110  3.9   2.62  16.5     0     1     4     4
