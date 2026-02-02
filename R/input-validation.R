@@ -73,17 +73,7 @@
   }
 
   if (overwrite && object_exists) {
-    # Check if it's a view
-    is_view <- DBI::dbGetQuery(
-      conn,
-      glue::glue(
-        "SELECT COUNT(*) > 0 AS is_view
-         FROM duckdb_views()
-         WHERE view_name = '{name}'"
-      )
-    )$is_view
-
-    if (is_view) {
+    if (is_view(conn, name)) {
       DBI::dbExecute(conn, glue::glue("DROP VIEW IF EXISTS {name}"))
     } else {
       DBI::dbRemoveTable(conn, name)
@@ -91,6 +81,37 @@
   }
 
   invisible(NULL)
+}
+
+#' Check if a database object is a VIEW
+#' @param conn DBI connection (must be duckdb)
+#' @param name Character, object name to check
+#' @return Logical, TRUE if the object is a VIEW
+#' @keywords internal
+#' @export
+is_view <- function(conn, name) {
+  if (!inherits(conn, "duckdb_connection")) {
+    stop("conn must be a duckdb connection")
+  }
+  if (!is.character(name) || length(name) != 1L || is.na(name)) {
+    stop("name must be a single non-NA character string")
+  }
+
+  res <- DBI::dbGetQuery(
+    conn,
+    glue::glue(
+      "SELECT COUNT(*) > 0 AS is_view
+       FROM duckdb_views()
+       WHERE view_name = '{name}'"
+    )
+  )
+
+  if (is.null(res) || nrow(res) == 0 || !("is_view" %in% names(res))) {
+    return(FALSE)
+  }
+
+  val <- res$is_view[[1]]
+  isTRUE(val) && !is.na(val)
 }
 
 #' Validate dplyr tbl object
