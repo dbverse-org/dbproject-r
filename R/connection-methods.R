@@ -19,7 +19,6 @@
   }
 
   # In-memory fallback
-
   if (is.null(dbdir) || dbdir == "" || dbdir == ":memory:") {
     return(tryCatch({
       drv <- duckdb::duckdb(dbdir = ":memory:")
@@ -35,6 +34,7 @@
     drv <- duckdb::duckdb(dbdir = dbdir)
     new_con <- DBI::dbConnect(drv)
     attr(new_con, "dbdir") <- dbdir
+    .reg_set_conn(dbdir, new_con)
     new_con
   }, error = function(e) NULL)
 }
@@ -48,6 +48,7 @@
     new_con <- DBI::dbConnect(drv)
     attr(new_con, "dbdir") <- dir
     .reg_add(dir, path)
+    .reg_set_conn(dir, new_con)
     new_con
   }, error = function(e) NULL)
 }
@@ -75,10 +76,14 @@
       }, error = function(e) NULL)
     }
 
-    # In-memory or no dir: direct reconnect
+    # In-memory or no dir: direct reconnect (no caching possible)
     if (is.null(dir) || dir == "" || dir == ":memory:") {
       return(.db_recon(con, dir))
     }
+
+    # Check registry for an existing valid connection to this db
+    cached <- .reg_conn(dir)
+    if (!is.null(cached)) return(cached)
 
     # Try project-based reconnection
     proj_path <- .reg_find(dir)
@@ -111,7 +116,7 @@ setMethod("conn", "dbData", function(x) {
   current_conn <- NULL
   
   if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
-    current_conn <- dbplyr::remote_con(x@value)
+    current_conn <- tryCatch(dbplyr::remote_con(x@value), error = function(e) NULL)
   } else if (!is.null(x@value) && !is.null(x@value$src) && !is.null(x@value$src$con)) {
     current_conn <- x@value$src$con
   }
@@ -144,11 +149,18 @@ setReplaceMethod("conn", "dbData", function(x, value) {
 #' @rdname dbReconnect
 #' @export
 setMethod("dbReconnect", "dbData", function(x) {
-  current_conn <- conn(x)
+  # Extract connection from x@value (avoid conn(x) auto-reconnect = avoid no-op)
+  current_conn <- NULL
+  if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
+    current_conn <- tryCatch(dbplyr::remote_con(x@value), error = function(e) NULL)
+  } else if (!is.null(x@value) && !is.null(x@value$src) && !is.null(x@value$src$con)) {
+    current_conn <- x@value$src$con
+  }
+
   if (!is.null(current_conn) && !DBI::dbIsValid(current_conn)) {
     new_conn <- .reconnect_conn(current_conn)
     if (!is.null(new_conn) && DBI::dbIsValid(new_conn)) {
-      conn(x) <- new_conn
+      # Reconnect via .reconnect_tbl_duckdb to preserve lazy-query operations.
       if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
         x@value <- .reconnect_tbl_duckdb(x@value, new_conn)
       }
