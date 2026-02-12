@@ -24,6 +24,23 @@ test_that("dbProject can disconnect and reconnect", {
   proj$disconnect()
 })
 
+test_that("dbProject get_conn reconnects after DBI invalidation", {
+  tmp_dir <- withr::local_tempdir()
+  proj <- dbProject$new(path = file.path(tmp_dir, "project"))
+
+  con1 <- proj$get_conn()
+  expect_true(DBI::dbIsValid(con1))
+
+  # Invalidate the underlying DBI connection without clearing the wrapper.
+  DBI::dbDisconnect(con1, shutdown = TRUE)
+  expect_false(DBI::dbIsValid(con1))
+
+  con2 <- proj$get_conn()
+  expect_true(DBI::dbIsValid(con2))
+
+  proj$disconnect()
+})
+
 test_that("dbProject pins connection to board", {
   tmp_dir <- withr::local_tempdir()
   proj <- dbProject$new(path = file.path(tmp_dir, "project"))
