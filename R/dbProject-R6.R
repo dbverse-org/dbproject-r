@@ -129,7 +129,7 @@ dbProject <- R6::R6Class(
     #' @return A `DBIConnection` object for direct database operations.
     #' @seealso [conn()] S4 generic for dbData objects
     get_conn = function() {
-      if (is.null(private$conn_)) {
+      if (is.null(private$conn_) || !DBI::dbIsValid(private$conn_@con)) {
         if (private$has_cached_connection()) {
           self$reconnect()
         } else {
