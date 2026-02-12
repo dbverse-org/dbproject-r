@@ -1,49 +1,14 @@
-#' Registry to track dbProject mappings and live connections
+#' Registry to track live connections
 #'
 #' @description
 #' The registry provides O(1) lookups from database file paths
-#' to their corresponding project paths. This enables fast
-#' reconnection when a connection becomes invalid.
+#' to cached live connections. This enables fast reconnection
+#' and connection de-duplication when a connection becomes invalid.
 #'
 #' Entries are keyed by normalized database file path.
-#' Project paths are stored under `dir`, live connections under
-#' `paste0("conn:", dir)` to avoid collisions.
+#' Live connections are stored under `paste0("conn:", dir)`.
 #' @keywords internal
 .db_registry <- new.env(parent = emptyenv())
-
-#' Add a dbProject mapping to registry
-#'
-#' @param dir Path to database file
-#' @param proj Path to project
-#' @return boolean indicating if addition was successful
-#' @keywords internal
-#' @noRd
-.reg_add <- function(dir, proj) {
-  # Skip NULL, empty or memory paths
-  if (is.null(dir) || dir == "" || dir == ":memory:") {
-    return(invisible(FALSE))
-  }
-
-  # Add to registry
-  .db_registry[[dir]] <- proj
-  return(invisible(TRUE))
-}
-
-#' Find project associated with a database
-#'
-#' @param dir Path to database file
-#' @return Project path or NULL if not found in registry
-#' @keywords internal
-#' @noRd
-.reg_find <- function(dir) {
-  # Skip NULL, empty or memory paths
-  if (is.null(dir) || dir == "" || dir == ":memory:") {
-    return(NULL)
-  }
-
-  # Lookup in registry
-  .db_registry[[dir]]
-}
 
 #' Find a cached live connection for a database path
 #'

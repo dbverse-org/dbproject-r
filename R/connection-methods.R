@@ -39,20 +39,6 @@
   }, error = function(e) NULL)
 }
 
-# Reconnect via project
-.proj_recon <- function(path, dir) {
-  if (!dir.exists(path)) return(NULL)
-  
-  tryCatch({
-    drv <- duckdb::duckdb(dbdir = dir)
-    new_con <- DBI::dbConnect(drv)
-    attr(new_con, "dbdir") <- dir
-    .reg_add(dir, path)
-    .reg_set_conn(dir, new_con)
-    new_con
-  }, error = function(e) NULL)
-}
-
 # Main reconnection strategy
 # Used by dbReconnect() and conn() methods
 .reconnect_conn <- function(con) {
@@ -84,13 +70,6 @@
     # Check registry for an existing valid connection to this db
     cached <- .reg_conn(dir)
     if (!is.null(cached)) return(cached)
-
-    # Try project-based reconnection
-    proj_path <- .reg_find(dir)
-    if (!is.null(proj_path)) {
-      new_con <- tryCatch(.proj_recon(proj_path, dir), error = function(e) NULL)
-      if (!is.null(new_con) && DBI::dbIsValid(new_con)) return(new_con)
-    }
 
     # Fallback to direct reconnection
     .db_recon(con, dir)
