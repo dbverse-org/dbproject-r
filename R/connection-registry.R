@@ -18,6 +18,7 @@
 #' @noRd
 .reg_conn <- function(dir) {
   if (is.null(dir) || dir == "" || dir == ":memory:") return(NULL)
+  dir <- .norm_path(dir)
   key <- paste0("conn:", dir)
   cached <- .db_registry[[key]]
   if (!is.null(cached) && DBI::dbIsValid(cached)) return(cached)
@@ -32,6 +33,7 @@
 #' @noRd
 .reg_set_conn <- function(dir, conn) {
   if (is.null(dir) || dir == "" || dir == ":memory:") return(invisible(FALSE))
+  dir <- .norm_path(dir)
   .db_registry[[paste0("conn:", dir)]] <- conn
   invisible(TRUE)
 }
