@@ -8,6 +8,22 @@
 #' @export
 #' @method write_pin_conn dbSpatial
 write_pin_conn.dbSpatial <- function(x, board, name, ...) {
+  # Always materialize to a permanent table using the pin name so the
+  # pinned spatial object survives connection/session teardown.
+  permanent_name <- paste0("pin_", gsub("[^a-zA-Z0-9_]", "_", name))
+  new_tbl <- dplyr::compute(
+    x@value,
+    name = permanent_name,
+    temporary = FALSE,
+    overwrite = TRUE
+  )
+
+  x <- methods::new(
+    "dbSpatial",
+    value = new_tbl,
+    name = permanent_name
+  )
+
   con <- dbplyr::remote_con(x@value)
   dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
   table_name <- x@name

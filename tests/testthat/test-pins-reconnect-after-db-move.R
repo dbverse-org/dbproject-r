@@ -114,3 +114,37 @@ test_that("conn_spatial_table pin read prefers cachedConnection after DB move", 
 
   proj$disconnect()
 })
+
+test_that("dbSpatial pinning materializes temporary tables", {
+  skip_if_not_installed("dbSpatial")
+
+  tmp_dir <- withr::local_tempdir()
+  proj_dir <- file.path(tmp_dir, "project")
+  db_path <- file.path(tmp_dir, "spatial.duckdb")
+
+  proj <- dbProject$new(path = proj_dir, dbdir = db_path)
+  con <- proj$get_conn()
+
+  DBI::dbWriteTable(
+    conn = con,
+    name = "spatial_tmp",
+    value = data.frame(x = 1:3, y = 4:6),
+    temporary = TRUE,
+    overwrite = TRUE
+  )
+
+  spatial_obj <- methods::new(
+    "dbSpatial",
+    value = dplyr::tbl(con, "spatial_tmp"),
+    name = "spatial_tmp"
+  )
+
+  restored_obj <- proj$pin_write(spatial_obj, name = "pinned_spatial_temp")
+  pinned <- pins::pin_read(proj$get_board(), "pinned_spatial_temp")
+
+  expect_true(inherits(restored_obj, "dbSpatial"))
+  expect_equal(pinned$table_name, "pin_pinned_spatial_temp")
+  expect_true(DBI::dbExistsTable(con, pinned$table_name))
+
+  proj$disconnect()
+})
