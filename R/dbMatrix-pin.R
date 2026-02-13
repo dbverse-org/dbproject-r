@@ -66,12 +66,12 @@ read_pin_conn <- function(x) {
 write_pin_conn.dbMatrix <- function(x, board, name, ...) {
   con <- dbplyr::remote_con(x@value)
   incoming_dbdir <- tryCatch(con@driver@dbdir, error = function(e) NA)
-  
+
   # STEP 1: Always materialize to a PERMANENT table using the pin name
   # This ensures data persists across sessions even if original was temporary
   # Use the pin name as the permanent table name to avoid conflicts
   permanent_name <- paste0("pin_", gsub("[^a-zA-Z0-9_]", "_", name))
-  
+
   # Use dplyr::compute which dispatches to dbMatrix's compute.dbSparseMatrix method
   # This properly handles: dimnames persistence and  temp table cleanup
   x <- dplyr::compute(
@@ -89,7 +89,7 @@ write_pin_conn.dbMatrix <- function(x, board, name, ...) {
   metadata <- list(
     host = NA,
     type = "dbMatrix",
-	columns = lapply(dplyr::collect(utils::head(x@value, 10)), class),
+    columns = lapply(dplyr::collect(utils::head(x@value, 10)), class),
     matrix_info = list(
       dim_names = x@dim_names,
       dims = x@dims,
@@ -131,7 +131,7 @@ write_pin_conn.tbl_duckdb_connection <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "duckdb",
-	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
+    columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(
       dim_names = NULL,
       dims = NULL,
@@ -172,7 +172,7 @@ write_pin_conn.tbl_sql <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "sql",
-	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
+    columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl_sql"),
     dbdir = dbdir
   )
@@ -196,7 +196,7 @@ write_pin_conn.tbl_sql <- function(x, board, ...) {
     metadata = metadata,
     ...
   )
-  
+
   return(invisible())
 }
 
@@ -211,7 +211,7 @@ write_pin_conn.tbl_lazy <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "lazy",
-	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
+    columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(
       dim_names = NULL,
       dims = NULL,
@@ -239,7 +239,7 @@ write_pin_conn.tbl_lazy <- function(x, board, ...) {
     metadata = metadata,
     ...
   )
-  
+
   return(invisible())
 }
 
@@ -254,7 +254,7 @@ write_pin_conn.tbl <- function(x, board, ...) {
   metadata <- list(
     host = NA,
     type = "tbl",
-	columns = lapply(dplyr::collect(utils::head(x, 10)), class),
+    columns = lapply(dplyr::collect(utils::head(x, 10)), class),
     matrix_info = list(dim_names = NULL, dims = NULL, matrix_class = "tbl"),
     dbdir = dbdir
   )
@@ -297,8 +297,7 @@ read_pin_conn.conn_matrix_table <- function(x) {
   if (is.null(dbdir) || is.na(dbdir)) {
     cli::cli_abort("No database path found in pinned object metadata.")
   }
-  drv <- duckdb::duckdb(dbdir = dbdir)
-  con <- DBI::dbConnect(drv)
+  con <- .connect_duckdb_lock_safe(dbdir = dbdir)
 
   table_name <- x$table_name
   if (is.null(table_name) || is.na(table_name)) {
@@ -326,7 +325,10 @@ read_pin_conn.conn_matrix_table <- function(x) {
   }
 
   # Check if this is a dbMatrix pin (has matrix_class)
-  if (!is.null(x$matrix_class) && x$matrix_class %in% c("dbSparseMatrix", "dbDenseMatrix")) {
+  if (
+    !is.null(x$matrix_class) &&
+      x$matrix_class %in% c("dbSparseMatrix", "dbDenseMatrix")
+  ) {
     if (is.null(table_name)) {
       # Legacy: parse from SQL if needed
       table_name <- gsub(".*FROM\\s+([^ ]+).*", "\\1", x$sql)
@@ -366,4 +368,3 @@ read_pin_conn.conn_matrix_table <- function(x) {
 
   cli::cli_abort("Pinned object is missing both table_name and sql.")
 }
-

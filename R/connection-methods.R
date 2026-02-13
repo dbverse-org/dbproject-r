@@ -8,8 +8,57 @@
 # Resolve database directory path
 # Pre-resolve paths before passing to connections package
 .resolve_dbdir <- function(...) {
-  if (length(list(...)) == 0) return(NULL)
+  if (length(list(...)) == 0) {
+    return(NULL)
+  }
   normalizePath(file.path(...), winslash = "/", mustWork = FALSE)
+}
+
+.is_duckdb_lock_error <- function(err) {
+  msg <- tryCatch(conditionMessage(err), error = function(e) "")
+  if (!nzchar(msg)) {
+    return(FALSE)
+  }
+
+  grepl(
+    "Could not set lock on file|Conflicting lock is held|connect/concurrency|\"errno\"\s*:\s*\"?11\"?",
+    msg,
+    ignore.case = TRUE
+  )
+}
+
+.connect_duckdb_lock_safe <- function(dbdir = NULL, read_only_default = FALSE) {
+  if (is.null(dbdir) || dbdir == "" || dbdir == ":memory:") {
+    drv <- duckdb::duckdb(dbdir = ":memory:")
+    con <- DBI::dbConnect(drv)
+    attr(con, "dbdir") <- ":memory:"
+    attr(con, "db_read_only") <- FALSE
+    return(con)
+  }
+
+  drv <- duckdb::duckdb(dbdir = dbdir)
+  read_only <- isTRUE(read_only_default)
+  lock_fallback <- FALSE
+
+  con <- tryCatch(
+    {
+      DBI::dbConnect(drv, read_only = read_only)
+    },
+    error = function(e) {
+      if (isTRUE(read_only) || !.is_duckdb_lock_error(e)) {
+        stop(e)
+      }
+
+      lock_fallback <<- TRUE
+
+      DBI::dbConnect(drv, read_only = TRUE)
+    }
+  )
+
+  attr(con, "dbdir") <- dbdir
+  attr(con, "db_read_only") <- isTRUE(read_only_default) ||
+    isTRUE(lock_fallback)
+  con
 }
 
 # Direct database reconnection
@@ -20,63 +69,82 @@
 
   # In-memory fallback
   if (is.null(dbdir) || dbdir == "" || dbdir == ":memory:") {
-    return(tryCatch({
-      drv <- duckdb::duckdb(dbdir = ":memory:")
-      new_con <- DBI::dbConnect(drv)
-      attr(new_con, "dbdir") <- ":memory:"
-      new_con
-    }, error = function(e) NULL))
+    return(tryCatch(
+      {
+        new_con <- .connect_duckdb_lock_safe(dbdir = ":memory:")
+        new_con
+      },
+      error = function(e) NULL
+    ))
   }
 
   # File-based reconnection
-  tryCatch({
-    if (!file.exists(dbdir)) return(NULL)
-    drv <- duckdb::duckdb(dbdir = dbdir)
-    new_con <- DBI::dbConnect(drv)
-    attr(new_con, "dbdir") <- dbdir
-    .reg_set_conn(dbdir, new_con)
-    new_con
-  }, error = function(e) NULL)
+  tryCatch(
+    {
+      if (!file.exists(dbdir)) {
+        return(NULL)
+      }
+      new_con <- .connect_duckdb_lock_safe(dbdir = dbdir)
+      .reg_set_conn(dbdir, new_con)
+      new_con
+    },
+    error = function(e) NULL
+  )
 }
 
 # Main reconnection strategy
 # Used by dbReconnect() and conn() methods
 .reconnect_conn <- function(con) {
-  tryCatch({
-    if (is.null(con)) return(con)
+  tryCatch(
+    {
+      if (is.null(con)) {
+        return(con)
+      }
 
-    # Check validity
-    is_valid <- tryCatch(DBI::dbIsValid(con), error = function(e) FALSE)
-    if (is_valid) return(con)
+      # Check validity
+      is_valid <- tryCatch(DBI::dbIsValid(con), error = function(e) FALSE)
+      if (is_valid) {
+        return(con)
+      }
 
-    # Get database directory
-    dir <- tryCatch({
-      path <- attr(con, "dbdir")
-      if (!is.null(path) && path != "") .norm_path(path) else NULL
-    }, error = function(e) NULL)
+      # Get database directory
+      dir <- tryCatch(
+        {
+          path <- attr(con, "dbdir")
+          if (!is.null(path) && path != "") .norm_path(path) else NULL
+        },
+        error = function(e) NULL
+      )
 
-    if (is.null(dir)) {
-      dir <- tryCatch({
-        dbdir <- con@driver@dbdir
-        if (!is.null(dbdir) && dbdir != "") .norm_path(dbdir) else NULL
-      }, error = function(e) NULL)
+      if (is.null(dir)) {
+        dir <- tryCatch(
+          {
+            dbdir <- con@driver@dbdir
+            if (!is.null(dbdir) && dbdir != "") .norm_path(dbdir) else NULL
+          },
+          error = function(e) NULL
+        )
+      }
+
+      # In-memory or no dir: direct reconnect (no caching possible)
+      if (is.null(dir) || dir == "" || dir == ":memory:") {
+        return(.db_recon(con, dir))
+      }
+
+      # Check registry for an existing valid connection to this db
+      cached <- .reg_conn(dir)
+      if (!is.null(cached)) {
+        return(cached)
+      }
+
+      # Fallback to direct reconnection
+      .db_recon(con, dir)
+    },
+    error = function(e) {
+      warning("Failed to reconnect: ", e$message)
+      NULL
     }
-
-    # In-memory or no dir: direct reconnect (no caching possible)
-    if (is.null(dir) || dir == "" || dir == ":memory:") {
-      return(.db_recon(con, dir))
-    }
-
-    # Check registry for an existing valid connection to this db
-    cached <- .reg_conn(dir)
-    if (!is.null(cached)) return(cached)
-
-    # Fallback to direct reconnection
-    .db_recon(con, dir)
-  }, error = function(e) {
-    warning("Failed to reconnect: ", e$message)
-    NULL
-  })
+  )
 }
 
 # conn() Methods ----
@@ -93,13 +161,17 @@
 #' @export
 setMethod("conn", "dbData", function(x) {
   current_conn <- NULL
-  
+
   if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
-    current_conn <- tryCatch(dbplyr::remote_con(x@value), error = function(e) NULL)
-  } else if (!is.null(x@value) && !is.null(x@value$src) && !is.null(x@value$src$con)) {
+    current_conn <- tryCatch(dbplyr::remote_con(x@value), error = function(e) {
+      NULL
+    })
+  } else if (
+    !is.null(x@value) && !is.null(x@value$src) && !is.null(x@value$src$con)
+  ) {
     current_conn <- x@value$src$con
   }
-  
+
   # Auto-reconnect if invalid
   if (!is.null(current_conn) && !DBI::dbIsValid(current_conn)) {
     fresh_conn <- .reconnect_conn(current_conn)
@@ -107,14 +179,18 @@ setMethod("conn", "dbData", function(x) {
       return(fresh_conn)
     }
   }
-  
+
   current_conn
 })
 
 #' @rdname dbData-connection-accessors
 #' @export
 setReplaceMethod("conn", "dbData", function(x, value) {
-  if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection") && !is.null(value)) {
+  if (
+    !is.null(x@value) &&
+      inherits(x@value, "tbl_duckdb_connection") &&
+      !is.null(value)
+  ) {
     x@value <- .reconnect_tbl_duckdb(x@value, value)
   }
   if (!is.null(x@value) && !is.null(x@value$src)) {
@@ -131,8 +207,12 @@ setMethod("dbReconnect", "dbData", function(x) {
   # Extract connection from x@value (avoid conn(x) auto-reconnect = avoid no-op)
   current_conn <- NULL
   if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
-    current_conn <- tryCatch(dbplyr::remote_con(x@value), error = function(e) NULL)
-  } else if (!is.null(x@value) && !is.null(x@value$src) && !is.null(x@value$src$con)) {
+    current_conn <- tryCatch(dbplyr::remote_con(x@value), error = function(e) {
+      NULL
+    })
+  } else if (
+    !is.null(x@value) && !is.null(x@value$src) && !is.null(x@value$src$con)
+  ) {
     current_conn <- x@value$src$con
   }
 

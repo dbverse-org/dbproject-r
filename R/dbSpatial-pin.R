@@ -15,7 +15,7 @@ write_pin_conn.dbSpatial <- function(x, board, name, ...) {
   metadata <- list(
     host = NA,
     type = "dbSpatial",
-	columns = lapply(dplyr::collect(utils::head(x@value, 10)), class),
+    columns = lapply(dplyr::collect(utils::head(x@value, 10)), class),
     dbdir = dbdir
   )
 
@@ -52,8 +52,7 @@ read_pin_conn.conn_spatial_table <- function(x) {
     cli::cli_abort("No database path found in pinned object metadata.")
   }
 
-  drv <- duckdb::duckdb(dbdir = dbdir)
-  con <- DBI::dbConnect(drv)
+  con <- .connect_duckdb_lock_safe(dbdir = dbdir)
 
   table_name <- x$table_name
   if (is.null(table_name) || is.na(table_name)) {
