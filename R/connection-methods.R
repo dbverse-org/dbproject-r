@@ -21,7 +21,7 @@
   }
 
   grepl(
-    "Could not set lock on file|Conflicting lock is held|connect/concurrency|\"errno\"\s*:\s*\"?11\"?",
+    r"(Could not set lock on file|Conflicting lock is held|connect/concurrency|"errno"\s*:\s*"?11"?)",
     msg,
     ignore.case = TRUE
   )
