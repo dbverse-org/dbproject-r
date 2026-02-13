@@ -222,6 +222,8 @@ setMethod("dbReconnect", "dbData", function(x) {
       # Reconnect via .reconnect_tbl_duckdb to preserve lazy-query operations.
       if (!is.null(x@value) && inherits(x@value, "tbl_duckdb_connection")) {
         x@value <- .reconnect_tbl_duckdb(x@value, new_conn)
+      } else if (!is.null(x@value) && !is.null(x@value$src)) {
+        x@value$src$con <- new_conn
       }
     }
   }

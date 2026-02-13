@@ -39,3 +39,18 @@ test_that("dbReconnect restores invalid connection", {
   
   DBI::dbDisconnect(conn(obj))
 })
+
+test_that("dbReconnect returns object with reconnected tbl", {
+  obj <- make_dbdata()
+  stale_con <- dbplyr::remote_con(obj@value)
+  DBI::dbDisconnect(stale_con, shutdown = TRUE)
+  expect_false(DBI::dbIsValid(stale_con))
+
+  obj <- dbReconnect(obj)
+  refreshed_con <- dbplyr::remote_con(obj@value)
+
+  expect_true(DBI::dbIsValid(refreshed_con))
+  expect_false(identical(stale_con, refreshed_con))
+
+  DBI::dbDisconnect(refreshed_con)
+})
