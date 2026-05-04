@@ -13,7 +13,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## The Problem
 
-Database connections in R are stateless:
+Database connections in R are stateful and can be easy to lose track of:
 
 ```r
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = "data.duckdb")
@@ -48,6 +48,44 @@ dbProject works alongside DBI, not instead of it:
 | dbProject | Multi-session work, centralized management |
 
 Both approaches get automatic reconnection via the `dbData` base class.
+
+## Convenience Features
+
+dbProject includes small convenience functions to help manage and organize
+database connections in R.
+
+`DBI::dbListTables()` is useful when you just need the table names in a
+connection:
+
+```{r dbi-list-tables}
+con <- proj$get_conn()
+DBI::dbWriteTable(
+  con,
+  "sample_metadata",
+  data.frame(sample = c("sample1", "sample2"), n = c(100, 120)),
+  overwrite = TRUE
+)
+DBI::dbExecute(
+  con,
+  "CREATE OR REPLACE TEMPORARY TABLE current_batch AS
+   SELECT * FROM sample_metadata"
+)
+DBI::dbExecute(
+  con,
+  "CREATE OR REPLACE VIEW sample_summary AS
+   SELECT sample, n FROM sample_metadata"
+)
+
+DBI::dbListTables(con)
+```
+
+`dbList()` keeps the same DBI connection but groups the results by table type,
+which makes it easier to distinguish persistent tables from temporary tables and
+views:
+
+```{r dbproject-list-tables}
+dbList(con)
+```
 
 ## Core Concepts
 
