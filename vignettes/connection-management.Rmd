@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 ## The Problem
@@ -24,16 +24,18 @@ tbl1 <- dplyr::tbl(con, "table1")
 ## dbProject's Solution
 
 An R6 class that centralizes your connection and pinned tables:
-```r
+```{r project-demo}
 library(dbProject)
 
-proj <- dbProject$new(path = "my_project/")
-proj$pin_write(my_tbl, "expression_data")
+project_path <- tempfile("dbproject-")
+proj <- dbProject$new(path = project_path)
+expression_data <- data.frame(gene = c("A", "B"), count = c(10, 20))
+proj$pin_write(expression_data, "expression_data")
 
 # Later (even after R restart):
-proj <- dbProject$new(path = "my_project/")
 proj$reconnect()
 my_tbl <- proj$pin_read("expression_data")
+my_tbl
 ```
 
 ## DBI Compatibility
@@ -87,4 +89,9 @@ mat[]  # Can be either a DBI connection or a dbProject connection
 proj$pin_write(my_tbl, "results")   # Save lazy table
 my_tbl <- proj$pin_read("results") # Restore reference
 proj$pin_delete("old_results")     # Clean up
+```
+
+```{r cleanup, include=FALSE}
+proj$disconnect()
+unlink(project_path, recursive = TRUE)
 ```

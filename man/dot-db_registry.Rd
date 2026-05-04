@@ -3,7 +3,7 @@
 \docType{data}
 \name{.db_registry}
 \alias{.db_registry}
-\title{Registry to track dbProject mappings}
+\title{Registry to track live connections}
 \format{
 An object of class \code{environment} of length 0.
 }
@@ -12,7 +12,10 @@ An object of class \code{environment} of length 0.
 }
 \description{
 The registry provides O(1) lookups from database file paths
-to their corresponding project paths. This enables fast
-reconnection when a connection becomes invalid.
+to cached live connections. This enables fast reconnection
+and connection de-duplication when a connection becomes invalid.
+
+Entries are keyed by normalized database file path.
+Live connections are stored under \code{paste0("conn:", dir)}.
 }
 \keyword{internal}

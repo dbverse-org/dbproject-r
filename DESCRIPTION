@@ -1,12 +1,21 @@
 Package: dbProject
-Title: Database Connection Management and Utils in the `dbverse`
+Title: Database Connection Management and Utilities for 'dbverse'
 Version: 0.1.0
 Authors@R:
   c(person("Edward C.", "Ruiz", , "ecr7407@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9174-5387")),
     person("Jiaji", "George Chen", email = "jiajic@bu.edu", role = c("aut")),
     person("Ruben", "Dries", email = "rubendries@gmail.com", role = c("aut")))
-Description: Database connection management and utilities in the `dbverse`.
+Description: Provides an R6-based project container for managing DuckDB
+    connections, reconnecting lazy database tables after session restarts, and
+    storing metadata for database-backed objects used by packages in the
+    'dbverse'. The package supplies S4 base classes and generics for
+    database-backed data, helpers for validating DuckDB connections and table
+    names, utilities for creating persistent database views, and methods for
+    writing and restoring pinned lazy tables through the 'pins' package. These
+    tools help package authors and analysts keep database paths, cached
+    connections, and table references synchronized across interactive sessions
+    and project directories.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
