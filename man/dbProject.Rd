@@ -14,12 +14,13 @@ Wraps a \code{\link[pins:board_folder]{pins::board_folder()}} with a cached conn
 ## Method `dbProject$restore`
 ## ------------------------------------------------
 
-\dontrun{
-# Restore and assign objects
-objs <- proj$restore()
-my_matrix <- objs$my_matrix
-my_spatial <- objs$my_spatial
-}
+project_path <- tempfile("dbproject-")
+proj <- dbProject$new(path = project_path)
+proj$pin_write(data.frame(id = 1:3), "example")
+restored <- proj$restore()
+names(restored)
+proj$disconnect()
+unlink(project_path, recursive = TRUE)
 }
 \seealso{
 \code{\link[=conn]{conn()}} S4 generic for dbData objects
@@ -151,7 +152,7 @@ Write a lazy database tbl to the project.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-The materialized object (for dbMatrix/dbSpatial) pointing to permanent table,
+The materialized object (for dbMatrix or dbSpatial objects) pointing to permanent table,
 or invisibly returns the dbProject object for other types.
 }
 }
@@ -217,12 +218,13 @@ A named list of restored pinned objects (excluding the connection).
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\dontrun{
-# Restore and assign objects
-objs <- proj$restore()
-my_matrix <- objs$my_matrix
-my_spatial <- objs$my_spatial
-}
+\preformatted{project_path <- tempfile("dbproject-")
+proj <- dbProject$new(path = project_path)
+proj$pin_write(data.frame(id = 1:3), "example")
+restored <- proj$restore()
+names(restored)
+proj$disconnect()
+unlink(project_path, recursive = TRUE)
 }
 \if{html}{\out{</div>}}
 

@@ -151,7 +151,7 @@ dbProject <- R6::R6Class(
     #'
     #' @param x A [`tbl`] object to be written to the board.
     #' @param name A character string specifying the name of the pin.
-    #' @return The materialized object (for dbMatrix/dbSpatial) pointing to permanent table,
+    #' @return The materialized object (for dbMatrix or dbSpatial objects) pointing to permanent table,
     #'   or invisibly returns the dbProject object for other types.
     pin_write = function(x, name) {
       if (is.null(private$board)) {
@@ -279,12 +279,13 @@ dbProject <- R6::R6Class(
     #'
     #' @return A named list of restored pinned objects (excluding the connection).
     #' @examples
-    #' \dontrun{
-    #' # Restore and assign objects
-    #' objs <- proj$restore()
-    #' my_matrix <- objs$my_matrix
-    #' my_spatial <- objs$my_spatial
-    #' }
+    #' project_path <- tempfile("dbproject-")
+    #' proj <- dbProject$new(path = project_path)
+    #' proj$pin_write(data.frame(id = 1:3), "example")
+    #' restored <- proj$restore()
+    #' names(restored)
+    #' proj$disconnect()
+    #' unlink(project_path, recursive = TRUE)
     restore = function() {
       manifest_path <- file.path(private$path, "_pins.yaml")
       if (!file.exists(manifest_path)) {

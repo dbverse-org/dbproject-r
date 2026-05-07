@@ -10,12 +10,22 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  comment = "#>"
 )
 ```
 
 This vignette covers common issues you may encounter when using dbverse packages and how to resolve them.
+
+```{r diagnostic-example}
+library(dbProject)
+
+project_path <- tempfile("dbproject-troubleshooting-")
+proj <- dbProject$new(path = project_path)
+proj$is_connected()
+proj$disconnect()
+proj$is_connected()
+unlink(project_path, recursive = TRUE)
+```
 
 ## Database Lock Errors
 

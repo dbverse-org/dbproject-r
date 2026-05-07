@@ -8,12 +8,12 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 ## The Problem
 
-Database connections in R are stateless:
+Database connections in R are stateful and can be easy to lose track of:
 
 ```r
 con <- DBI::dbConnect(duckdb::duckdb(), dbdir = "data.duckdb")
@@ -24,16 +24,18 @@ tbl1 <- dplyr::tbl(con, "table1")
 ## dbProject's Solution
 
 An R6 class that centralizes your connection and pinned tables:
-```r
+```{r project-demo}
 library(dbProject)
 
-proj <- dbProject$new(path = "my_project/")
-proj$pin_write(my_tbl, "expression_data")
+project_path <- tempfile("dbproject-")
+proj <- dbProject$new(path = project_path)
+expression_data <- data.frame(gene = c("A", "B"), count = c(10, 20))
+proj$pin_write(expression_data, "expression_data")
 
 # Later (even after R restart):
-proj <- dbProject$new(path = "my_project/")
 proj$reconnect()
 my_tbl <- proj$pin_read("expression_data")
+my_tbl
 ```
 
 ## DBI Compatibility
@@ -46,6 +48,44 @@ dbProject works alongside DBI, not instead of it:
 | dbProject | Multi-session work, centralized management |
 
 Both approaches get automatic reconnection via the `dbData` base class.
+
+## Convenience Features
+
+dbProject includes small convenience functions to help manage and organize
+database connections in R.
+
+`DBI::dbListTables()` is useful when you just need the table names in a
+connection:
+
+```{r dbi-list-tables}
+con <- proj$get_conn()
+DBI::dbWriteTable(
+  con,
+  "sample_metadata",
+  data.frame(sample = c("sample1", "sample2"), n = c(100, 120)),
+  overwrite = TRUE
+)
+DBI::dbExecute(
+  con,
+  "CREATE OR REPLACE TEMPORARY TABLE current_batch AS
+   SELECT * FROM sample_metadata"
+)
+DBI::dbExecute(
+  con,
+  "CREATE OR REPLACE VIEW sample_summary AS
+   SELECT sample, n FROM sample_metadata"
+)
+
+DBI::dbListTables(con)
+```
+
+`dbList()` keeps the same DBI connection but groups the results by table type,
+which makes it easier to distinguish persistent tables from temporary tables and
+views:
+
+```{r dbproject-list-tables}
+dbList(con)
+```
 
 ## Core Concepts
 
@@ -87,4 +127,9 @@ mat[]  # Can be either a DBI connection or a dbProject connection
 proj$pin_write(my_tbl, "results")   # Save lazy table
 my_tbl <- proj$pin_read("results") # Restore reference
 proj$pin_delete("old_results")     # Clean up
+```
+
+```{r cleanup, include=FALSE}
+proj$disconnect()
+unlink(project_path, recursive = TRUE)
 ```

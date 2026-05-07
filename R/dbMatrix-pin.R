@@ -55,7 +55,7 @@ read_pin_conn <- function(x) {
 #' @description S3 method for writing dbMatrix objects to a pins board while maintaining
 #' connection state and metadata consistent with the connections package.
 #'
-#' @param x A [`dbMatrix`] object (dbSparseMatrix or dbDenseMatrix)
+#' @param x A dbMatrix object (dbSparseMatrix or dbDenseMatrix)
 #' @param board A pins [`board_folder`] object
 #' @param name Name for the pin (required)
 #' @param ... Additional arguments passed to [`pins::pin_write()`]
