@@ -1,8 +1,11 @@
-# Registry to track dbProject mappings
+# Registry to track live connections
 
-The registry provides O(1) lookups from database file paths to their
-corresponding project paths. This enables fast reconnection when a
-connection becomes invalid.
+The registry provides O(1) lookups from database file paths to cached
+live connections. This enables fast reconnection and connection
+de-duplication when a connection becomes invalid.
+
+Entries are keyed by normalized database file path. Live connections are
+stored under `paste0("conn:", dir)`.
 
 ## Usage
 

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dbProject</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,8 @@
 <div class="section level2">
 <h2 id="the-problem">The Problem<a class="anchor" aria-label="anchor" href="#the-problem"></a>
 </h2>
-<p>Database connections in R are stateless:</p>
+<p>Database connections in R are stateful and can be easy to lose track
+of:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbConnect.html" class="external-link">dbConnect</a></span><span class="op">(</span><span class="fu">duckdb</span><span class="fu">::</span><span class="fu"><a href="https://r.duckdb.org/reference/duckdb.html" class="external-link">duckdb</a></span><span class="op">(</span><span class="op">)</span>, dbdir <span class="op">=</span> <span class="st">"data.duckdb"</span><span class="op">)</span></span>
 <span><span class="va">tbl1</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/tbl.html" class="external-link">tbl</a></span><span class="op">(</span><span class="va">con</span>, <span class="st">"table1"</span><span class="op">)</span></span>
@@ -84,13 +85,33 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dbverse-org/dbproject-r" class="external-link">dbProject</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/dbProject.html">dbProject</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="st">"my_project/"</span><span class="op">)</span></span>
-<span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span><span class="va">my_tbl</span>, <span class="st">"expression_data"</span><span class="op">)</span></span>
+<span><span class="va">project_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"dbproject-"</span><span class="op">)</span></span>
+<span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/dbProject.html">dbProject</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="va">project_path</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Creating new version '20260507T171733Z-72241'</span></span>
+<span><span class="co">#&gt; Writing to pin 'cachedConnection'</span></span>
+<span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
+<span><span class="va">expression_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>gene <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span><span class="va">expression_data</span>, <span class="st">"expression_data"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Guessing `type = 'rds'`</span></span>
+<span><span class="co">#&gt; Creating new version '20260507T171733Z-f8e46'</span></span>
+<span><span class="co">#&gt; Writing to pin 'expression_data'</span></span>
+<span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
 <span></span>
 <span><span class="co"># Later (even after R restart):</span></span>
-<span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/dbProject.html">dbProject</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="st">"my_project/"</span><span class="op">)</span></span>
 <span><span class="va">proj</span><span class="op">$</span><span class="fu">reconnect</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">my_tbl</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span><span class="st">"expression_data"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'connections'</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:dbProject':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     connection_pin_read, read_pin_conn, write_pin_conn</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Loading required package: DBI</span></span>
+<span><span class="va">my_tbl</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span><span class="st">"expression_data"</span><span class="op">)</span></span>
+<span><span class="va">my_tbl</span></span>
+<span><span class="co">#&gt;   gene count</span></span>
+<span><span class="co">#&gt; 1    A    10</span></span>
+<span><span class="co">#&gt; 2    B    20</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="dbi-compatibility">DBI Compatibility<a class="anchor" aria-label="anchor" href="#dbi-compatibility"></a>
@@ -116,12 +137,54 @@
 <code>dbData</code> base class.</p>
 </div>
 <div class="section level2">
+<h2 id="convenience-features">Convenience Features<a class="anchor" aria-label="anchor" href="#convenience-features"></a>
+</h2>
+<p>dbProject includes small convenience functions to help manage and
+organize database connections in R.</p>
+<p><code><a href="https://dbi.r-dbi.org/reference/dbListTables.html" class="external-link">DBI::dbListTables()</a></code> is useful when you just need the
+table names in a connection:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">con</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">get_conn</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" class="external-link">dbWriteTable</a></span><span class="op">(</span></span>
+<span>  <span class="va">con</span>,</span>
+<span>  <span class="st">"sample_metadata"</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample1"</span>, <span class="st">"sample2"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">120</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  overwrite <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a></span><span class="op">(</span></span>
+<span>  <span class="va">con</span>,</span>
+<span>  <span class="st">"CREATE OR REPLACE TEMPORARY TABLE current_batch AS</span></span>
+<span><span class="st">   SELECT * FROM sample_metadata"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 2</span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbExecute.html" class="external-link">dbExecute</a></span><span class="op">(</span></span>
+<span>  <span class="va">con</span>,</span>
+<span>  <span class="st">"CREATE OR REPLACE VIEW sample_summary AS</span></span>
+<span><span class="st">   SELECT sample, n FROM sample_metadata"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
+<span></span>
+<span><span class="fu">DBI</span><span class="fu">::</span><span class="fu"><a href="https://dbi.r-dbi.org/reference/dbListTables.html" class="external-link">dbListTables</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "current_batch"   "sample_metadata" "sample_summary"</span></span></code></pre></div>
+<p><code><a href="../reference/dbList.html">dbList()</a></code> keeps the same DBI connection but groups the
+results by table type, which makes it easier to distinguish persistent
+tables from temporary tables and views:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/dbList.html">dbList</a></span><span class="op">(</span><span class="va">con</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">Tables: </span></span></span>
+<span><span class="co"><span style="color: #00BB00;">#&gt; </span>[1] "sample_metadata"</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">Temporary Tables: </span></span></span>
+<span><span class="co"><span style="color: #00BB00;">#&gt; </span>[1] "current_batch"</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">Views: </span></span></span>
+<span><span class="co"><span style="color: #00BB00;">#&gt; </span>[1] "sample_summary"</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="core-concepts">Core Concepts<a class="anchor" aria-label="anchor" href="#core-concepts"></a>
 </h2>
 <div class="section level3">
 <h3 id="mutable-state-r6">Mutable State (R6)<a class="anchor" aria-label="anchor" href="#mutable-state-r6"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/dbProject.html">dbProject</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="st">"my_analysis/"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># These modify the same object - no reassignment needed</span></span>
@@ -132,7 +195,7 @@
 <div class="section level3">
 <h3 id="centralized-management">Centralized Management<a class="anchor" aria-label="anchor" href="#centralized-management"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span></span>
 <span><span class="co">#&gt; ── dbProject ──────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; ✓ Connected</span></span>
@@ -147,14 +210,14 @@
 </h3>
 <p>The empty extract <code>[]</code> method on all dbverse objects
 auto-reconnects if the connection is stale:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mat</span><span class="op">[</span><span class="op">]</span>  <span class="co"># Can be either a DBI connection or a dbProject connection</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="working-with-pins">Working with Pins<a class="anchor" aria-label="anchor" href="#working-with-pins"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span><span class="va">my_tbl</span>, <span class="st">"results"</span><span class="op">)</span>   <span class="co"># Save lazy table</span></span>
 <span><span class="va">my_tbl</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span><span class="st">"results"</span><span class="op">)</span> <span class="co"># Restore reference</span></span>
 <span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_delete</span><span class="op">(</span><span class="st">"old_results"</span><span class="op">)</span>     <span class="co"># Clean up</span></span></code></pre></div>

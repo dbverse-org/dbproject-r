@@ -163,8 +163,9 @@ Write a lazy database tbl to the project.
 
 #### Returns
 
-The materialized object (for dbMatrix/dbSpatial) pointing to permanent
-table, or invisibly returns the dbProject object for other types.
+The materialized object (for dbMatrix or dbSpatial objects) pointing to
+permanent table, or invisibly returns the dbProject object for other
+types.
 
 ------------------------------------------------------------------------
 
@@ -233,12 +234,13 @@ A named list of restored pinned objects (excluding the connection).
 
 #### Examples
 
-    \dontrun{
-    # Restore and assign objects
-    objs <- proj$restore()
-    my_matrix <- objs$my_matrix
-    my_spatial <- objs$my_spatial
-    }
+    project_path <- tempfile("dbproject-")
+    proj <- dbProject$new(path = project_path)
+    proj$pin_write(data.frame(id = 1:3), "example")
+    restored <- proj$restore()
+    names(restored)
+    proj$disconnect()
+    unlink(project_path, recursive = TRUE)
 
 ------------------------------------------------------------------------
 
@@ -330,14 +332,30 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+
 ## ------------------------------------------------
 ## Method `dbProject$restore`
 ## ------------------------------------------------
 
-if (FALSE) { # \dontrun{
-# Restore and assign objects
-objs <- proj$restore()
-my_matrix <- objs$my_matrix
-my_spatial <- objs$my_spatial
-} # }
+project_path <- tempfile("dbproject-")
+proj <- dbProject$new(path = project_path)
+#> Creating new version '20260507T171728Z-72241'
+#> Writing to pin 'cachedConnection'
+#> Manifest file written to root folder of board, as `_pins.yaml`
+proj$pin_write(data.frame(id = 1:3), "example")
+#> Guessing `type = 'rds'`
+#> Creating new version '20260507T171728Z-de4f9'
+#> Writing to pin 'example'
+#> Manifest file written to root folder of board, as `_pins.yaml`
+restored <- proj$restore()
+#> 
+#> Attaching package: ‘connections’
+#> The following objects are masked from ‘package:dbProject’:
+#> 
+#>     connection_pin_read, read_pin_conn, write_pin_conn
+#> Loading required package: DBI
+names(restored)
+#> [1] "example"
+proj$disconnect()
+unlink(project_path, recursive = TRUE)
 ```

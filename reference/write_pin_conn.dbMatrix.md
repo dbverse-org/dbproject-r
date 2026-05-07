@@ -14,9 +14,7 @@ write_pin_conn(x, board, name, ...)
 
 - x:
 
-  A
-  [`dbMatrix::dbMatrix`](https://dbverse-org.github.io/dbmatrix-r/reference/dbMatrix.html)
-  object (dbSparseMatrix or dbDenseMatrix)
+  A dbMatrix object (dbSparseMatrix or dbDenseMatrix)
 
 - board:
 

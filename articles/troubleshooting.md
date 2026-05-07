@@ -3,6 +3,23 @@
 This vignette covers common issues you may encounter when using dbverse
 packages and how to resolve them.
 
+``` r
+
+library(dbProject)
+
+project_path <- tempfile("dbproject-troubleshooting-")
+proj <- dbProject$new(path = project_path)
+#> Creating new version '20260507T171739Z-72241'
+#> Writing to pin 'cachedConnection'
+#> Manifest file written to root folder of board, as `_pins.yaml`
+proj$is_connected()
+#> [1] TRUE
+proj$disconnect()
+proj$is_connected()
+#> [1] FALSE
+unlink(project_path, recursive = TRUE)
+```
+
 ## Database Lock Errors
 
 ### Error: “Could not set lock on file”
@@ -32,6 +49,7 @@ when:
 3.  **Properly disconnect before closing sessions**:
 
     ``` r
+
     # Always disconnect when done
     proj$disconnect()
 
@@ -42,6 +60,7 @@ when:
 4.  **Use read-only mode for concurrent access**:
 
     ``` r
+
     # Multiple processes can read simultaneously
     con <- DBI::dbConnect(duckdb::duckdb(), dbdir = "path/to/db", read_only = TRUE)
     ```
@@ -56,6 +75,7 @@ when:
 established. **Solution**: Reconnect to the database:
 
 ``` r
+
 proj$reconnect()
 ```
 
@@ -67,6 +87,7 @@ the connection is lost.
 **Solution**: Use `dbProject` for automatic reconnection:
 
 ``` r
+
 # Create project (saves connection info)
 proj <- dbProject$new(path = "my_project", dbdir = "data.duckdb")
 
@@ -91,6 +112,7 @@ my_data <- proj$pin_read("my_table")
 1.  **Avoid `collect()` on large tables**:
 
     ``` r
+
     # BAD - loads entire table into memory
     big_df <- big_table |> collect()
 
@@ -103,6 +125,7 @@ my_data <- proj$pin_read("my_table")
 2.  **Use `pin_write()` to materialize intermediates to disk**:
 
     ``` r
+
     # Materialize to database, not memory
     filtered_data <- proj$pin_write(x = lazy_filtered, name = "filtered")
     ```
@@ -120,6 +143,7 @@ my_data <- proj$pin_read("my_table")
 or `pin_write()` to materialize intermediate results:
 
 ``` r
+
 # Materialize after expensive operations
 complex_result <- my_dbMatrix |>
   some_expensive_transform() |> # e.g. a function containing several SQL joins
