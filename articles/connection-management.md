@@ -21,13 +21,13 @@ library(dbProject)
 
 project_path <- tempfile("dbproject-")
 proj <- dbProject$new(path = project_path)
-#> Creating new version '20260507T171733Z-72241'
+#> Creating new version '20260508T135655Z-72241'
 #> Writing to pin 'cachedConnection'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 expression_data <- data.frame(gene = c("A", "B"), count = c(10, 20))
 proj$pin_write(expression_data, "expression_data")
 #> Guessing `type = 'rds'`
-#> Creating new version '20260507T171733Z-f8e46'
+#> Creating new version '20260508T135655Z-f8e46'
 #> Writing to pin 'expression_data'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 
