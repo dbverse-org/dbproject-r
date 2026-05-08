@@ -1,5 +1,21 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# dbProject 0.1.0 (2026-05-07)
+
+## CRAN release
+
+- First CRAN release of dbProject.
+
+## Documentation
+
+- Expand package metadata and description for CRAN.
+
+- Make the `connection-management` and `troubleshooting` vignettes runnable
+  during checks.
+
+- Clarify connection-management guidance and add a `dbList()` convenience
+  example.
+
 # dbProject 0.0.0.9002 (2026-01-19)
 
 ## Bug fixes
