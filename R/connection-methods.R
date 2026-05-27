@@ -71,6 +71,11 @@
   if (is.null(dbdir) || dbdir == "" || dbdir == ":memory:") {
     return(tryCatch(
       {
+        warning(
+          "In-memory DuckDB reconnection creates a fresh empty database; ",
+          "prior tables and session-local state cannot be restored.",
+          call. = FALSE
+        )
         new_con <- .connect_duckdb_lock_safe(dbdir = ":memory:")
         new_con
       },
@@ -81,12 +86,11 @@
   # File-based reconnection
   tryCatch(
     {
+      dbdir <- .norm_path(dbdir)
       if (!file.exists(dbdir)) {
         return(NULL)
       }
-      new_con <- .connect_duckdb_lock_safe(dbdir = dbdir)
-      .reg_set_conn(dbdir, new_con)
-      new_con
+      .reg_get_or_connect(dbdir)
     },
     error = function(e) NULL
   )
@@ -131,13 +135,6 @@
         return(.db_recon(con, dir))
       }
 
-      # Check registry for an existing valid connection to this db
-      cached <- .reg_conn(dir)
-      if (!is.null(cached)) {
-        return(cached)
-      }
-
-      # Fallback to direct reconnection
       .db_recon(con, dir)
     },
     error = function(e) {
