@@ -9,7 +9,7 @@ library(dbProject)
 
 project_path <- tempfile("dbproject-troubleshooting-")
 proj <- dbProject$new(path = project_path)
-#> Creating new version '20260528T003537Z-72241'
+#> Creating new version '20260528T004956Z-72241'
 #> Writing to pin 'cachedConnection'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj$is_connected()

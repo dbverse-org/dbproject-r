@@ -1,5 +1,14 @@
 # Changelog
 
+## dbProject 0.1.1 (2026-05-27)
+
+### Bug fixes
+
+- Reuse canonical file-backed ‘DuckDB’ connections when reconnecting
+  objects.
+
+- Declare `dbMatrix` as a suggested package for tests.
+
 ## dbProject 0.1.0 (2026-05-07)
 
 CRAN release: 2026-05-07
