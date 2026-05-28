@@ -339,12 +339,12 @@ The objects of this class are cloneable with this method.
 
 project_path <- tempfile("dbproject-")
 proj <- dbProject$new(path = project_path)
-#> Creating new version '20260508T135650Z-72241'
+#> Creating new version '20260528T003528Z-72241'
 #> Writing to pin 'cachedConnection'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj$pin_write(data.frame(id = 1:3), "example")
 #> Guessing `type = 'rds'`
-#> Creating new version '20260508T135650Z-de4f9'
+#> Creating new version '20260528T003528Z-de4f9'
 #> Writing to pin 'example'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 restored <- proj$restore()
