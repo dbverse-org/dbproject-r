@@ -10,32 +10,44 @@
 #' @keywords internal
 .db_registry <- new.env(parent = emptyenv())
 
-#' Find a cached live connection for a database path
-#'
-#' @param dir Normalized path to database file
-#' @return A valid DBIConnection or NULL
-#' @keywords internal
-#' @noRd
-.reg_conn <- function(dir) {
-  if (is.null(dir) || dir == "" || dir == ":memory:") return(NULL)
-  dir <- .norm_path(dir)
-  key <- paste0("conn:", dir)
+.reg_key <- function(dbdir) {
+  if (is.null(dbdir) || length(dbdir) != 1 || is.na(dbdir) ||
+      dbdir == "" || dbdir == ":memory:") {
+    return(NULL)
+  }
+  paste0("conn:", .norm_path(dbdir))
+}
+
+.reg_conn <- function(dbdir) {
+  key <- .reg_key(dbdir)
+  if (is.null(key)) return(NULL)
+
   cached <- .db_registry[[key]]
   if (!is.null(cached) && DBI::dbIsValid(cached)) return(cached)
+  if (!is.null(cached)) rm(list = key, envir = .db_registry)
   NULL
 }
 
-#' Store a live connection in the registry
-#'
-#' @param dir Normalized path to database file
-#' @param conn A valid DBIConnection
-#' @keywords internal
-#' @noRd
-.reg_set_conn <- function(dir, conn) {
-  if (is.null(dir) || dir == "" || dir == ":memory:") return(invisible(FALSE))
-  dir <- .norm_path(dir)
-  .db_registry[[paste0("conn:", dir)]] <- conn
+.reg_set_conn <- function(dbdir, conn) {
+  key <- .reg_key(dbdir)
+  if (is.null(key) || is.null(conn) || !DBI::dbIsValid(conn)) {
+    return(invisible(FALSE))
+  }
+  .db_registry[[key]] <- conn
   invisible(TRUE)
+}
+
+.reg_get_or_connect <- function(dbdir) {
+  cached <- .reg_conn(dbdir)
+  if (!is.null(cached)) return(cached)
+
+  if (is.null(.reg_key(dbdir))) {
+    return(.connect_duckdb_lock_safe(dbdir = ":memory:"))
+  }
+
+  con <- .connect_duckdb_lock_safe(dbdir = .norm_path(dbdir))
+  .reg_set_conn(dbdir, con)
+  con
 }
 
 #' Reset the dbProject registry

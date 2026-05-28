@@ -54,3 +54,30 @@ test_that("dbReconnect returns object with reconnected tbl", {
 
   DBI::dbDisconnect(refreshed_con)
 })
+
+test_that("dbReconnect reuses one file-backed connection", {
+  dbProject:::.reg_reset()
+  withr::defer(dbProject:::.reg_reset())
+
+  db_path <- tempfile(fileext = ".duckdb")
+  con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+  DBI::dbExecute(con, "CREATE TABLE one AS SELECT 1 AS x")
+  DBI::dbExecute(con, "CREATE TABLE two AS SELECT 2 AS x")
+
+  if (!methods::isClass("RegistryDbData")) {
+    methods::setClass("RegistryDbData", contains = "dbData", where = .GlobalEnv)
+  }
+  one <- methods::new("RegistryDbData", value = dplyr::tbl(con, "one"))
+  two <- methods::new("RegistryDbData", value = dplyr::tbl(con, "two"))
+
+  DBI::dbDisconnect(con, shutdown = TRUE)
+  one <- dbReconnect(one)
+  two <- dbReconnect(two)
+
+  con1 <- dbplyr::remote_con(one@value)
+  con2 <- dbplyr::remote_con(two@value)
+  expect_identical(con2, con1)
+  expect_equal(dplyr::collect(two@value)$x, 2)
+
+  DBI::dbDisconnect(con1)
+})

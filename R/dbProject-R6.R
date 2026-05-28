@@ -47,6 +47,7 @@ dbProject <- R6::R6Class(
               drv = duckdb::duckdb()
             )
           }
+          private$conn_ <- private$register_connection(private$conn_)
           connections::connection_pin_write(
             board = private$board,
             x = private$conn_,
@@ -83,6 +84,7 @@ dbProject <- R6::R6Class(
           board = private$board,
           name = "cachedConnection"
         )
+        private$conn_ <- private$register_connection(private$conn_)
       }
       invisible(self)
     },
@@ -113,6 +115,7 @@ dbProject <- R6::R6Class(
           dbdir = .(dbdir_val)
         )
       ))
+      private$conn_ <- private$register_connection(private$conn_)
 
       connections::connection_pin_write(
         board = private$board,
@@ -136,6 +139,7 @@ dbProject <- R6::R6Class(
           stop("No active or cached connection available")
         }
       }
+      private$conn_ <- private$register_connection(private$conn_)
       private$conn_@con
     },
 
@@ -302,6 +306,7 @@ dbProject <- R6::R6Class(
             board = private$board,
             name = "cachedConnection"
           )
+          private$conn_ <- private$register_connection(private$conn_)
         } else {
           # Add to return list for user to assign
           restored[[pin_name]] <- self$pin_read(pin_name)
@@ -458,6 +463,25 @@ dbProject <- R6::R6Class(
 
     has_cached_connection = function() {
       "cachedConnection" %in% pins::pin_list(private$board)
+    },
+
+    register_connection = function(conn_obj) {
+      if (is.null(conn_obj) || is.null(conn_obj@con)) {
+        return(conn_obj)
+      }
+
+      dbdir <- tryCatch(.get_dbdir(conn_obj@con), error = function(e) NULL)
+      cached <- .reg_conn(dbdir)
+      if (!is.null(cached)) {
+        if (!identical(cached, conn_obj@con)) {
+          try(DBI::dbDisconnect(conn_obj@con), silent = TRUE)
+          conn_obj@con <- cached
+        }
+      } else {
+        .reg_set_conn(dbdir, conn_obj@con)
+      }
+
+      conn_obj
     }
   )
 )

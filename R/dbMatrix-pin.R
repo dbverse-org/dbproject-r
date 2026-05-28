@@ -297,7 +297,10 @@ read_pin_conn.conn_matrix_table <- function(x) {
   if (is.null(dbdir) || is.na(dbdir)) {
     cli::cli_abort("No database path found in pinned object metadata.")
   }
-  con <- .connect_duckdb_lock_safe(dbdir = dbdir)
+  if (!file.exists(.norm_path(dbdir))) {
+    cli::cli_abort("Database file {.path {dbdir}} not found for pinned object.")
+  }
+  con <- .reg_get_or_connect(dbdir)
 
   table_name <- x$table_name
   if (is.null(table_name) || is.na(table_name)) {
