@@ -6,3 +6,13 @@ test_that("table names must be plain SQL names", {
     expect_error(.check_name(name))
   }
 })
+
+test_that("unique_table_name() leaves the random seed alone", {
+  set.seed(1)
+  expected <- runif(1)
+  set.seed(1)
+  name <- unique_table_name("tmp")
+  expect_identical(runif(1), expected)
+  expect_match(name, "^tmp_[[:alnum:]]+$")
+  expect_false(identical(name, unique_table_name("tmp")))
+})

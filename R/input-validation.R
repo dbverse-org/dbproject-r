@@ -137,7 +137,6 @@ is_view <- function(conn, name) {
 #' @keywords internal
 #' @export
 unique_table_name <- function(prefix = "db") {
-  vals <- c(letters, LETTERS, 0:9)
-  suffix <- paste0(sample(vals, 10, replace = TRUE), collapse = "")
-  paste0(prefix, "_", suffix)
+  # tempfile() makes unique names without touching the user's random seed
+  basename(tempfile(paste0(prefix, "_")))
 }
