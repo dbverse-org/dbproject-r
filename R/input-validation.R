@@ -29,13 +29,16 @@
     stop("Please provide a table name")
   }
 
-  if (!is.character(name)) {
-    stop("name must be a character string")
+  if (!is.character(name) || length(name) != 1L || is.na(name)) {
+    stop("name must be a single character string")
   }
 
-  # Table names should not start with a number
-  if (grepl("^[0-9]", name)) {
-    stop("Table names should not start with a number")
+  # Names are used directly in SQL, so allow only letters, digits and "_"
+  if (!grepl("^[[:alpha:]_][[:alnum:]_]*$", name)) {
+    stop(
+      "Invalid table name '", name, "'. Use only letters, numbers and '_', ",
+      "and do not start with a number (e.g. 'pbmc_3k')."
+    )
   }
 
   # Reserved SQL keywords
