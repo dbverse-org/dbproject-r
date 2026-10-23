@@ -1,17 +1,26 @@
-## Resubmission
+## Submission
 
-This is a resubmission. In this version I have:
+This is a patch release with three bug fixes:
 
-* declared `dbMatrix` in Suggests because it is used by tests;
-* reused canonical file-backed 'DuckDB' connections when reconnecting objects;
-* rebuilt the source package with prebuilt vignettes in `inst/doc`.
+* table names that 'DuckDB' cannot use now give a clear error
+* creating temporary table names no longer changes the user's random number
+  stream after `set.seed()`
+* spatial functions work on a pinned `dbSpatial` object after its project is
+  reopened
+
+## Test environments
+
+* local R 4.6.0 on x86_64-pc-linux-gnu (Ubuntu 24.04, WSL2)
 
 ## R CMD check results
 
-0 errors | 1 warning | 1 note
+`R CMD check --as-cran --no-manual` with `NOT_CRAN` unset
 
-Checked with `R CMD check --as-cran --no-manual`.
+* 0 errors
+* 0 warnings
+* 0 notes
 
-The warning is because `qpdf` is not installed in the local check environment.
-The note is because the local check environment was unable to verify the current
-time.
+## Reverse dependencies
+
+I checked the 2 reverse dependencies on CRAN (dbMatrix 0.1.0 and
+dbSpatial 0.1.3) with `R CMD check` against this version. Both were OK.
