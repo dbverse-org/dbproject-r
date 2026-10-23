@@ -42,7 +42,8 @@ Suggests:
     withr,
     testthat (>= 3.0.0),
     dbMatrix,
-    dbSpatial
+    dbSpatial,
+    sf
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Collate: 
