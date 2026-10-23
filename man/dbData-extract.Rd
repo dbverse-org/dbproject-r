@@ -6,8 +6,15 @@
 \alias{[,dbData-method}
 \alias{[<-,dbData-method}
 \title{Extract and replace methods for dbData objects}
+\usage{
+\S4method{[}{dbData}(x, i, j, ..., drop = TRUE)
+
+\S4method{[}{dbData}(x, i, j, ...) <- value
+}
 \arguments{
 \item{x}{A \code{dbData} object.}
+
+\item{i, j, drop}{Ignored; \code{x[]} returns or replaces the whole value.}
 
 \item{...}{Additional arguments passed to the extractor.}
 

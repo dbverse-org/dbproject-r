@@ -1,5 +1,16 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# dbProject 0.1.2 (2026-10-23)
+
+## Bug fixes
+
+- Table names that 'DuckDB' cannot use, such as `pbmc-3k` or `counts.raw`, now give a clear error instead of a database error later.
+
+- Creating temporary table names no longer changes the random number stream after `set.seed()`.
+
+- Spatial functions work on a pinned `dbSpatial` object after its project is reopened. The 'DuckDB' spatial extension is now loaded when the object is restored.
+
+
 # dbProject 0.1.1 (2026-05-27)
 
 ## Bug fixes

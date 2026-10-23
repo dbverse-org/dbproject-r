@@ -8,7 +8,12 @@
 #' The extractor attempts to auto-reconnect via [dbReconnect()] before returning
 #' the underlying database-backed value.
 #'
+#' @usage
+#' \S4method{[}{dbData}(x, i, j, ..., drop = TRUE)
+#'
+#' \S4method{[}{dbData}(x, i, j, ...) <- value
 #' @param x A `dbData` object.
+#' @param i,j,drop Ignored; `x[]` returns or replaces the whole value.
 #' @param ... Additional arguments passed to the extractor.
 #' @param value Replacement value for `[<-`.
 #' @return For `[`: the underlying value stored in the object. For `[<-`: the updated `dbData`.
