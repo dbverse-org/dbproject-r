@@ -261,6 +261,7 @@ dbProject <- R6::R6Class(
           cli::cli_abort("No table name found in pinned object metadata.")
         }
 
+        .load_spatial(con)
         new_tbl <- dplyr::tbl(con, table_name)
         return(methods::new(
           "dbSpatial",

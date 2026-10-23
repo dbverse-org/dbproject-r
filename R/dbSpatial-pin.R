@@ -56,6 +56,16 @@ write_pin_conn.dbSpatial <- function(x, board, name, ...) {
   return(invisible(x))
 }
 
+# A reopened connection does not have DuckDB's spatial extension loaded, so
+# spatial functions on a restored dbSpatial would fail. dbSpatial's loader
+# installs the extension into the session temp folder.
+.load_spatial <- function(con) {
+  if (requireNamespace("dbSpatial", quietly = TRUE)) {
+    suppressMessages(dbSpatial::loadSpatial(conn = con))
+  }
+  invisible(con)
+}
+
 #' Read a pinned dbSpatial object from a pins board
 #'
 #' @param x A pinned conn_spatial_table object
@@ -86,6 +96,7 @@ read_pin_conn.conn_spatial_table <- function(x) {
     )
   }
 
+  .load_spatial(con)
   new_tbl <- dplyr::tbl(con, table_name)
   db_spatial <- methods::new(
     "dbSpatial",

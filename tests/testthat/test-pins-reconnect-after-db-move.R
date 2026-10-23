@@ -148,3 +148,26 @@ test_that("dbSpatial pinning materializes temporary tables", {
 
   proj$disconnect()
 })
+
+test_that("a pinned dbSpatial can use spatial functions after the project is reopened", {
+  skip_if_not_installed("dbSpatial")
+  skip_if_not_installed("sf")
+
+  tmp_dir <- withr::local_tempdir()
+  proj_dir <- file.path(tmp_dir, "project")
+  db_path <- file.path(tmp_dir, "spatial.duckdb")
+
+  proj <- dbProject$new(path = proj_dir, dbdir = db_path)
+  square <- sf::st_sf(
+    id = 1,
+    geometry = sf::st_sfc(sf::st_polygon(list(rbind(c(0, 0), c(2, 0), c(2, 2), c(0, 2), c(0, 0)))))
+  )
+  geo <- dbSpatial::as_dbSpatial(square, conn = proj$get_conn(), name = "squares", overwrite = TRUE)
+  proj$pin_write(geo, name = "geo")
+  proj$disconnect()
+
+  reopened <- dbProject$new(path = proj_dir, dbdir = db_path)
+  restored <- reopened$pin_read("geo")
+  expect_equal(dplyr::collect(sf::st_area(restored)@value)$area, 4)
+  reopened$disconnect()
+})
