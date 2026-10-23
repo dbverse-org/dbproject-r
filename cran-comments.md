@@ -1,3 +1,10 @@
+## Resubmission
+
+This is a resubmission. I added a `\usage` section to `dbData-extract.Rd`,
+fixing the "Rd files without \usage" NOTE from the incoming pre-tests on
+r-devel-linux-x86_64-debian-gcc (also shown for the current CRAN version on
+the r-devel Debian flavors).
+
 ## Submission
 
 This is a patch release with three bug fixes:
