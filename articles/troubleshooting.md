@@ -9,7 +9,15 @@ library(dbProject)
 
 project_path <- tempfile("dbproject-troubleshooting-")
 proj <- dbProject$new(path = project_path)
-#> Creating new version '20260602T145739Z-72241'
+#> duckdb keeps downloaded extensions and secrets in a temporary directory:
+#> ℹ /tmp/RtmpQKbdgg/duckdb
+#> This is removed when the R session ends.
+#> • Extensions are re-downloaded each session.
+#> • Secrets are lost.
+#> ℹ Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).
+#> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
+#> ℹ See ?duckdb_storage for details and alternatives.
+#> Creating new version '20261023T170404Z-673da'
 #> Writing to pin 'cachedConnection'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj$is_connected()

@@ -339,12 +339,20 @@ The objects of this class are cloneable with this method.
 
 project_path <- tempfile("dbproject-")
 proj <- dbProject$new(path = project_path)
-#> Creating new version '20260602T145728Z-72241'
+#> duckdb keeps downloaded extensions and secrets in a temporary directory:
+#> ℹ /tmp/Rtmp0OXSIQ/duckdb
+#> This is removed when the R session ends.
+#> • Extensions are re-downloaded each session.
+#> • Secrets are lost.
+#> ℹ Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).
+#> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
+#> ℹ See ?duckdb_storage for details and alternatives.
+#> Creating new version '20261023T170353Z-673da'
 #> Writing to pin 'cachedConnection'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj$pin_write(data.frame(id = 1:3), "example")
 #> Guessing `type = 'rds'`
-#> Creating new version '20260602T145728Z-de4f9'
+#> Creating new version '20261023T170353Z-2f165'
 #> Writing to pin 'example'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 restored <- proj$restore()
@@ -354,6 +362,14 @@ restored <- proj$restore()
 #> 
 #>     connection_pin_read, read_pin_conn, write_pin_conn
 #> Loading required package: DBI
+#> duckdb keeps downloaded extensions and secrets in a temporary directory:
+#> ℹ /tmp/Rtmp0OXSIQ/duckdb
+#> This is removed when the R session ends.
+#> • Extensions are re-downloaded each session.
+#> • Secrets are lost.
+#> ℹ Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).
+#> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
+#> ℹ See ?duckdb_storage for details and alternatives.
 names(restored)
 #> [1] "example"
 proj$disconnect()

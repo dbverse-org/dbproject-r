@@ -2,6 +2,8 @@
 
 ## dbProject 0.1.1 (2026-05-27)
 
+CRAN release: 2026-06-02
+
 ### Bug fixes
 
 - Reuse canonical file-backed ‘DuckDB’ connections when reconnecting
