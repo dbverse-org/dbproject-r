@@ -1,5 +1,22 @@
 # Changelog
 
+## dbProject 0.1.2 (2026-10-23)
+
+CRAN release: 2026-10-23
+
+### Bug fixes
+
+- Table names that ‘DuckDB’ cannot use, such as `pbmc-3k` or
+  `counts.raw`, now give a clear error instead of a database error
+  later.
+
+- Creating temporary table names no longer changes the random number
+  stream after [`set.seed()`](https://rdrr.io/r/base/Random.html).
+
+- Spatial functions work on a pinned `dbSpatial` object after its
+  project is reopened. The ‘DuckDB’ spatial extension is now loaded when
+  the object is restored.
+
 ## dbProject 0.1.1 (2026-05-27)
 
 CRAN release: 2026-06-02

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dbProject</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,27 +86,27 @@ and enables automatic reconnection.</p>
 <span></span>
 <span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/dbProject.html">dbProject</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="va">project_dir</span>, dbdir <span class="op">=</span> <span class="va">db_path</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp4M73MU/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpWac3Nh/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
-<span><span class="co">#&gt; Creating new version '20261023T170401Z-a4251'</span></span>
+<span><span class="co">#&gt; Creating new version '20261027T141058Z-69c70'</span></span>
 <span><span class="co">#&gt; Writing to pin 'cachedConnection'</span></span>
 <span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
 <span><span class="va">proj</span></span>
 <span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
 <span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05</span></span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/RtmpWac3Nh/dbproject_demo21c47f47f175</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
 <span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-23 <span style="color: #949494;">17:04:01</span>       233 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-27 <span style="color: #949494;">14:10:58</span>       231 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
 <span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05/demo.duckdb</span></span></span></code></pre></div>
+<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="working-with-data">Working with Data<a class="anchor" aria-label="anchor" href="#working-with-data"></a>
@@ -117,7 +117,7 @@ and enables automatic reconnection.</p>
 <span><span class="va">mtcars_tbl</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/copy_to.html" class="external-link">copy_to</a></span><span class="op">(</span><span class="va">con</span>, <span class="va">mtcars</span>, <span class="st">"mtcars"</span>, temporary <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">mtcars_tbl</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A query:  ?? x 11</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 1.5.6 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05/demo.duckdb]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 2.0.0 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb]</span></span></span>
 <span><span class="co">#&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4</span></span>
@@ -137,21 +137,21 @@ and enables automatic reconnection.</p>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mtcars_tbl</span>, name <span class="op">=</span> <span class="st">"mtcars"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Creating new version '20261023T170401Z-4ab8c'</span></span>
+<span><span class="co">#&gt; Creating new version '20261027T141059Z-e7f1e'</span></span>
 <span><span class="co">#&gt; Writing to pin 'mtcars'</span></span>
 <span><span class="co">#&gt; Manifest file written to root folder of board, as `_pins.yaml`</span></span>
 <span><span class="va">proj</span></span>
 <span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
 <span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05</span></span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/RtmpWac3Nh/dbproject_demo21c47f47f175</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
 <span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-23 <span style="color: #949494;">17:04:01</span>       233 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   mtcars: a pin… 2026-10-23 <span style="color: #949494;">17:04:01</span>       268 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-27 <span style="color: #949494;">14:10:58</span>       231 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   mtcars: a pin… 2026-10-27 <span style="color: #949494;">14:10:59</span>       267 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
 <span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05/demo.duckdb</span></span></span>
+<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Tables:</span></span>
 <span><span class="co">#&gt; • mtcars</span></span></code></pre></div>
 </div>
@@ -165,12 +165,12 @@ and enables automatic reconnection.</p>
 <span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> Disconnected</span></span>
 <span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05</span></span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/RtmpWac3Nh/dbproject_demo21c47f47f175</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
 <span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-23 <span style="color: #949494;">17:04:01</span>       233 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   mtcars: a pin… 2026-10-23 <span style="color: #949494;">17:04:01</span>       268 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-27 <span style="color: #949494;">14:10:58</span>       231 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   mtcars: a pin… 2026-10-27 <span style="color: #949494;">14:10:59</span>       267 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
 <span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> No active connection.</span></span>
 <span></span>
@@ -183,7 +183,7 @@ and enables automatic reconnection.</p>
 <span><span class="co">#&gt;     connection_pin_read, read_pin_conn, write_pin_conn</span></span>
 <span><span class="co">#&gt; Loading required package: DBI</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp4M73MU/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpWac3Nh/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -194,14 +194,14 @@ and enables automatic reconnection.</p>
 <span><span class="co">#&gt; ─────────────────────────────────── dbProject ──────────────────────────────────</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Connected</span></span>
 <span><span class="co">#&gt; ── Board Content ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05</span></span></span>
+<span><span class="co">#&gt; Board Path: <span style="color: #0000BB;">/tmp/RtmpWac3Nh/dbproject_demo21c47f47f175</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
 <span><span class="co">#&gt;   name             type  title          created             file_size meta      </span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;fs::byt&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-23 <span style="color: #949494;">17:04:01</span>       233 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   mtcars: a pin… 2026-10-23 <span style="color: #949494;">17:04:01</span>       268 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> cachedConnection rds   connConnectio… 2026-10-27 <span style="color: #949494;">14:10:58</span>       231 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> mtcars           rds   mtcars: a pin… 2026-10-27 <span style="color: #949494;">14:10:59</span>       267 <span style="color: #949494;">&lt;pins_met&gt;</span></span></span>
 <span><span class="co">#&gt; ── Database Content ────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05/demo.duckdb</span></span></span>
+<span><span class="co">#&gt; Database Path: <span style="color: #0000BB;">/tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Tables:</span></span>
 <span><span class="co">#&gt; • mtcars</span></span></code></pre></div>
 </div>
@@ -212,7 +212,7 @@ and enables automatic reconnection.</p>
 <code class="sourceCode R"><span><span class="va">restored</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">pin_read</span><span class="op">(</span><span class="st">"mtcars"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">restored</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A query:  ?? x 11</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 1.5.6 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/Rtmp4M73MU/dbproject_demo21f87a1cab05/demo.duckdb]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 2.0.0 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb]</span></span></span>
 <span><span class="co">#&gt;     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  21       6   160   110  3.9   2.62  16.5     0     1     4     4</span></span>

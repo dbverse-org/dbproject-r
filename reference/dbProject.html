@@ -11,7 +11,7 @@ Wraps a pins::board_folder() with a cached connection object stored as
 
     <a class="navbar-brand me-2" href="../index.html">dbProject</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -356,19 +356,19 @@ pinned objects are returned as a named list for the user to assign.</p>
 <span class="r-in"><span><span class="va">project_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"dbproject-"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">proj</span> <span class="op">&lt;-</span> <span class="va">dbProject</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>path <span class="op">=</span> <span class="va">project_path</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> duckdb keeps downloaded extensions and secrets in a temporary directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp0OXSIQ/duckdb</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/RtmpxppH6y/duckdb</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> This is removed when the R session ends.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Secrets are lost.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating new version '20261023T170353Z-673da'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating new version '20261027T141050Z-673da'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Writing to pin 'cachedConnection'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Manifest file written to root folder of board, as `_pins.yaml`</span>
 <span class="r-in"><span><span class="va">proj</span><span class="op">$</span><span class="fu">pin_write</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, <span class="st">"example"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Guessing `type = 'rds'`</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating new version '20261023T170353Z-2f165'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Creating new version '20261027T141050Z-2f165'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Writing to pin 'example'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Manifest file written to root folder of board, as `_pins.yaml`</span>
 <span class="r-in"><span><span class="va">restored</span> <span class="op">&lt;-</span> <span class="va">proj</span><span class="op">$</span><span class="fu">restore</span><span class="op">(</span><span class="op">)</span></span></span>
@@ -379,7 +379,7 @@ pinned objects are returned as a named list for the user to assign.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     connection_pin_read, read_pin_conn, write_pin_conn</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: DBI</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> duckdb keeps downloaded extensions and secrets in a temporary directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp0OXSIQ/duckdb</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/RtmpxppH6y/duckdb</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> This is removed when the R session ends.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Secrets are lost.</span>

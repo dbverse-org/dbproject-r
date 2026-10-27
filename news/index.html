@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">dbProject</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,15 @@
       <small>Source: <a href="https://github.com/dbverse-org/dbproject-r/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.2" id="dbproject-012-2026-10-23">dbProject 0.1.2 (2026-10-23)<a class="anchor" aria-label="anchor" href="#dbproject-012-2026-10-23"></a></h2><p class="text-muted">CRAN release: 2026-10-23</p>
+<div class="section level3">
+<h3 id="bug-fixes-0-1-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-2"></a></h3>
+<ul><li><p>Table names that ‘DuckDB’ cannot use, such as <code>pbmc-3k</code> or <code>counts.raw</code>, now give a clear error instead of a database error later.</p></li>
+<li><p>Creating temporary table names no longer changes the random number stream after <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>.</p></li>
+<li><p>Spatial functions work on a pinned <code>dbSpatial</code> object after its project is reopened. The ‘DuckDB’ spatial extension is now loaded when the object is restored.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="dbproject-011-2026-05-27">dbProject 0.1.1 (2026-05-27)<a class="anchor" aria-label="anchor" href="#dbproject-011-2026-05-27"></a></h2><p class="text-muted">CRAN release: 2026-06-02</p>
 <div class="section level3">
