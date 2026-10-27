@@ -21,27 +21,27 @@ db_path <- file.path(project_dir, "demo.duckdb")
 
 proj <- dbProject$new(path = project_dir, dbdir = db_path)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpWac3Nh/duckdb
+#> ℹ /tmp/RtmpJ6BvZl/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
 #> ℹ Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
-#> Creating new version '20261027T141058Z-69c70'
+#> Creating new version '20261027T154600Z-c2a84'
 #> Writing to pin 'cachedConnection'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✔ Connected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpWac3Nh/dbproject_demo21c47f47f175
+#> Board Path: /tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11
 #> # A tibble: 1 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-10-27 14:10:58       231 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-10-27 15:46:00       234 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
-#> Database Path: /tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb
+#> Database Path: /tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11/demo.duckdb
 ```
 
 ### Working with Data
@@ -53,7 +53,7 @@ con <- proj$get_conn()
 mtcars_tbl <- dplyr::copy_to(con, mtcars, "mtcars", temporary = FALSE, overwrite = TRUE)
 mtcars_tbl
 #> # A query:  ?? x 11
-#> # Database: DuckDB 2.0.0 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb]
+#> # Database: DuckDB 2.0.0 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11/demo.duckdb]
 #>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -74,21 +74,21 @@ mtcars_tbl
 ``` r
 
 proj$pin_write(x = mtcars_tbl, name = "mtcars")
-#> Creating new version '20261027T141059Z-e7f1e'
+#> Creating new version '20261027T154601Z-d3a8b'
 #> Writing to pin 'mtcars'
 #> Manifest file written to root folder of board, as `_pins.yaml`
 proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✔ Connected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpWac3Nh/dbproject_demo21c47f47f175
+#> Board Path: /tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11
 #> # A tibble: 2 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-10-27 14:10:58       231 <pins_met>
-#> 2 mtcars           rds   mtcars: a pin… 2026-10-27 14:10:59       267 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-10-27 15:46:00       234 <pins_met>
+#> 2 mtcars           rds   mtcars: a pin… 2026-10-27 15:46:01       270 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
-#> Database Path: /tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb
+#> Database Path: /tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11/demo.duckdb
 #> ℹ Tables:
 #> • mtcars
 ```
@@ -103,12 +103,12 @@ proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✖ Disconnected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpWac3Nh/dbproject_demo21c47f47f175
+#> Board Path: /tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11
 #> # A tibble: 2 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-10-27 14:10:58       231 <pins_met>
-#> 2 mtcars           rds   mtcars: a pin… 2026-10-27 14:10:59       267 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-10-27 15:46:00       234 <pins_met>
+#> 2 mtcars           rds   mtcars: a pin… 2026-10-27 15:46:01       270 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
 #> ℹ No active connection.
 
@@ -121,7 +121,7 @@ proj$reconnect()
 #>     connection_pin_read, read_pin_conn, write_pin_conn
 #> Loading required package: DBI
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpWac3Nh/duckdb
+#> ℹ /tmp/RtmpJ6BvZl/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -132,14 +132,14 @@ proj
 #> ─────────────────────────────────── dbProject ──────────────────────────────────
 #> ✔ Connected
 #> ── Board Content ───────────────────────────────────────────────────────────────
-#> Board Path: /tmp/RtmpWac3Nh/dbproject_demo21c47f47f175
+#> Board Path: /tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11
 #> # A tibble: 2 × 6
 #>   name             type  title          created             file_size meta      
 #>   <chr>            <chr> <chr>          <dttm>              <fs::byt> <list>    
-#> 1 cachedConnection rds   connConnectio… 2026-10-27 14:10:58       231 <pins_met>
-#> 2 mtcars           rds   mtcars: a pin… 2026-10-27 14:10:59       267 <pins_met>
+#> 1 cachedConnection rds   connConnectio… 2026-10-27 15:46:00       234 <pins_met>
+#> 2 mtcars           rds   mtcars: a pin… 2026-10-27 15:46:01       270 <pins_met>
 #> ── Database Content ────────────────────────────────────────────────────────────
-#> Database Path: /tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb
+#> Database Path: /tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11/demo.duckdb
 #> ℹ Tables:
 #> • mtcars
 ```
@@ -151,7 +151,7 @@ proj
 restored <- proj$pin_read("mtcars")
 head(restored, 5)
 #> # A query:  ?? x 11
-#> # Database: DuckDB 2.0.0 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/RtmpWac3Nh/dbproject_demo21c47f47f175/demo.duckdb]
+#> # Database: DuckDB 2.0.0 [unknown@Linux 6.17.0-1022-azure:R 4.6.1//tmp/RtmpJ6BvZl/dbproject_demo259f38e3bb11/demo.duckdb]
 #>     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #>   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
 #> 1  21       6   160   110  3.9   2.62  16.5     0     1     4     4
