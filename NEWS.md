@@ -1,5 +1,10 @@
 <!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
 
+# dbProject 0.1.2.9000
+
+- Same as previous version.
+
+
 # dbProject 0.1.2 (2026-10-23)
 
 ## Bug fixes
